@@ -6,6 +6,8 @@ import com.kristof.gameengine.object3d.ByteObject3dBO;
 
 import org.lwjgl.opengl.GL11;
 
+import java.util.List;
+
 import static com.kristof.gameengine.engine.EngineMiscConstants.INFINITY;
 
 public class SkyBoxBO extends ByteObject3dBO {

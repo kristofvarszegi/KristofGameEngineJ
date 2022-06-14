@@ -16,10 +16,15 @@ public class ShadowVolumeBO extends ByteObject3dBO {
     private List<Vector3fExt> rimVertexPositions;
     private List<Integer> tokenSizes;
 
-    public ShadowVolumeBO(ShadowVolume shadowVolumeData) {
-        super(shadowVolumeData);
+    public ShadowVolumeBO(ShadowVolume shadowVolume) {
+        super(List.of(shadowVolume));
         lightParam = new Vector3fExt();
         // TODO check list consistency
+    }
+
+    @Override
+    protected void saveGeometryParams(List<Object> geometryParams) {
+        this.shadowVolume = (ShadowVolume) geometryParams.get(0);
     }
 
     public int getTokenCount() {
@@ -28,9 +33,9 @@ public class ShadowVolumeBO extends ByteObject3dBO {
 
     @Override
     protected void fillVertexAttribLists() {
-        lightParam = shadowVolumeData.getLightPosition();
-        rimVertexPositions = shadowVolumeData.getRimVertexPositions();
-        tokenSizes = shadowVolumeData.getTokenSizes();
+        lightParam = shadowVolume.getLightPosition();
+        rimVertexPositions = shadowVolume.getRimVertexPositions();
+        tokenSizes = shadowVolume.getTokenSizes();
         if (rimVertexPositions.size() > 0) {
             if (tokenSizes.size() > 1) {
                 setUpRimVertexListTokenAttribLists();
@@ -41,7 +46,7 @@ public class ShadowVolumeBO extends ByteObject3dBO {
     }
 
     protected void setUpRimVertexListTokenAttribLists() {
-        final Vector3fExt zGap = Vector3fExt.substract(shadowVolumeData.getPosition(), lightParam)
+        final Vector3fExt zGap = Vector3fExt.substract(shadowVolume.getPosition(), lightParam)
                 .getNormalized().getMultipliedBy(GAP_SIZE);
         List<Vector3fExt> rimVertexPositionsTemp;
         int tokenSizeSumSoFar = 0;
@@ -58,7 +63,7 @@ public class ShadowVolumeBO extends ByteObject3dBO {
             }
 
             // Extrude center and silhouette vertices
-            final Vector3fExt extrCVr = Vector3fExt.substract(shadowVolumeData.getPosition(), lightParam);
+            final Vector3fExt extrCVr = Vector3fExt.substract(shadowVolume.getPosition(), lightParam);
             extrCVr.setLength(INFINITY);
             positions.add(extrCVr);
 
@@ -87,7 +92,7 @@ public class ShadowVolumeBO extends ByteObject3dBO {
 
     protected void setUpRimVertexListAttribLists() {
         // Build shadow volume vertex position array - front cap
-        final Vector3fExt zGap = Vector3fExt.substract(shadowVolumeData.getPosition(), lightParam)
+        final Vector3fExt zGap = Vector3fExt.substract(shadowVolume.getPosition(), lightParam)
                 .getNormalized().getMultipliedBy(GAP_SIZE);
         positions.add(Vector3fExt.average(rimVertexPositions).getSumWith(zGap));
         for (final Vector3fExt rimVertexPosition : rimVertexPositions) {
@@ -95,8 +100,8 @@ public class ShadowVolumeBO extends ByteObject3dBO {
         }
 
         // Extrude silhouette vertices & center
-        final Vector3fExt extrCVr = shadowVolumeData.getPosition().getSumWith(
-                Vector3fExt.substract(shadowVolumeData.getPosition(), lightParam)
+        final Vector3fExt extrCVr = shadowVolume.getPosition().getSumWith(
+                Vector3fExt.substract(shadowVolume.getPosition(), lightParam)
                         .getNormalized().getMultipliedBy(INFINITY));
         positions.add(extrCVr);
 

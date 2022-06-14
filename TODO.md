@@ -1,6 +1,4 @@
 
-* Render config from file
-* Separate BOs for Tri and Rect
 * Create the scene
 * Logger
 * Unit tests

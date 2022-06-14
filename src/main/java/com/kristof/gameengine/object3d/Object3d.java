@@ -160,8 +160,8 @@ public abstract class Object3d {
     }
 
     public float getMass() {
-        return (getVolume() * material.getMassDensity());
-    }//mMass;}
+        return getVolume() * material.getMassDensity();
+    }
 
     public float getMomentOfInertia() {
         return (getMass() * scale.getCoordAverage() * scale.getCoordAverage());

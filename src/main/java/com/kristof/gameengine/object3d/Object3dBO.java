@@ -29,7 +29,7 @@ public abstract class Object3dBO {
     protected float normScale = 1f;
     protected float size = 1f;
 
-    protected ShadowVolume shadowVolumeData;
+    protected ShadowVolume shadowVolume;
 
     protected int vaoIndex = 0;
     protected int vboIndex = 0;
@@ -67,7 +67,7 @@ public abstract class Object3dBO {
         return size;
     }
 
-    protected void setUpVertexAttribBuffers() {
+    protected void createAndFillVertexAttribBuffers() {
         // Sending data to OpenGL requires the usage of (flipped) byte buffers
         final FloatBuffer vertexAttribBuffer = BufferUtils.createFloatBuffer(vertexAttribArray.length);
         vertexAttribBuffer.put(vertexAttribArray);
@@ -149,7 +149,7 @@ public abstract class Object3dBO {
         }
     }
 
-    protected void setUpVertexAttribArray() {
+    protected void createAndFillVertexAttribArray() {
         vertexCount = positions.size();
         vertexAttribArray = new float[vertexCount * VertexConstants.STRIDE_IN_ELEMENTS_PNTT];
         toPositionArray(positions);
@@ -258,7 +258,7 @@ public abstract class Object3dBO {
      */
     protected abstract void fillIndices();
 
-    protected abstract void setUpIndexBuffer();
+    protected abstract void createAndFillIndexBuffer();
 
     protected abstract void drawElements();
 }

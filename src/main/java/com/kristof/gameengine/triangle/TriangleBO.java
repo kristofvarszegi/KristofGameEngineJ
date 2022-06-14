@@ -5,11 +5,25 @@ import com.kristof.gameengine.object3d.ByteObject3dBO;
 
 import org.lwjgl.opengl.GL11;
 
+import java.util.List;
+
 public class TriangleBO extends ByteObject3dBO {
     private static final int VERTEX_COUNT = 3;
 
+    // Vertices in CCW order. The 1st and the 2nd holds the biggest side of the triangle.
+    private Vector3fExt triangleVertex1;
+    private Vector3fExt triangleVertex2;
+    private Vector3fExt triangleVertex3;
+
     public TriangleBO(Vector3fExt vertex1, Vector3fExt vertex2, Vector3fExt vertex3) {
-        super(vertex1, vertex2, vertex3);
+        super(List.of(vertex1, vertex2, vertex3));
+    }
+
+    @Override
+    protected void saveGeometryParams(List<Object> geometryParams) {
+        triangleVertex1 = (Vector3fExt) geometryParams.get(0);
+        triangleVertex2 = (Vector3fExt) geometryParams.get(1);
+        triangleVertex3 = (Vector3fExt) geometryParams.get(2);
     }
 
     @Override

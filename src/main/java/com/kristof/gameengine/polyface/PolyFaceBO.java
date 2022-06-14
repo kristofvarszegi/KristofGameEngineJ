@@ -9,7 +9,20 @@ import java.util.List;
 
 public class PolyFaceBO extends ByteObject3dBO {
     public PolyFaceBO(List<Vector3fExt> vertexPositions) {
-        super(vertexPositions);
+        super(List.of(vertexPositions));
+    }
+
+    @Override
+    protected void saveGeometryParams(List<Object> geometryParams) {
+        final List<Vector3fExt> vertexPositions = (List<Vector3fExt>) geometryParams.get(0);
+        if (vertexPositions.size() <= 2) {
+            positions.add(Vector3fExt.X_UNIT_VECTOR);
+            positions.add(Vector3fExt.Z_UNIT_VECTOR.getReverse());
+            positions.add(Vector3fExt.X_UNIT_VECTOR.getReverse());
+        } else {
+            positions.add(Vector3fExt.average(vertexPositions));
+            positions.addAll(vertexPositions);
+        }
     }
 
     @Override

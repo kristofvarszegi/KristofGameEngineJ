@@ -1,5 +1,6 @@
 package com.kristof.gameengine.engine;
 
+import static com.kristof.gameengine.engine.EngineConfig.RENDER_MODE.RAY_TRACING;
 import static com.kristof.gameengine.shadow.ShadowVolume.LIGHT_PARAM_TYPE.LIGHT_POSITION;
 import static com.kristof.gameengine.engine.EngineGLConstants.*;
 import static com.kristof.gameengine.engine.EngineMiscConstants.*;
@@ -32,10 +33,7 @@ import de.matthiasmann.twl.utils.PNGDecoder.Format;
 import static java.lang.Math.tan;
 
 import java.awt.*;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -120,22 +118,16 @@ public class Engine {
     private final List<InputHistoryElement> inputHistory;
     private OutputStream outStream;
 
-    // TODO with config file
-    private final boolean isRayTracingModeEnabled = false;
     private boolean isOutputStreamSet = false;
     private boolean isMouseLocked = false;
     private boolean isVTargetSet = false;
     private boolean isDashTargetSet = false;
-    private final boolean isGravityOn = true;
-    private final boolean isFullscreen = true;
-    private final boolean isPostProcessingEnabled = true;
-    private final boolean isShadowsEnabled = true;
-    private final boolean isShadowVolumesVisible = false;
-    private final boolean isEyeIdleMovementEnabled = true;
+
+    private final EngineConfig config;
 
     private Callback debugProc;
 
-    public Engine() {
+    public Engine(String iniFilePath) throws IOException {
         defaultUniformIndices = new int[16];
         Arrays.fill(defaultUniformIndices, -1);
         skyBoxUniformIndices = new int[16];
@@ -168,6 +160,8 @@ public class Engine {
         staticObjects = new Vector<>();
         inertObjects = new Vector<>();
 
+        config = new EngineConfig(iniFilePath);
+
         initGL();
         exitOnGLError("renderer constructor - initOpenGL()");
         inputHistory = new Vector<>();
@@ -182,7 +176,7 @@ public class Engine {
         loadBuiltInTextures();
         exitOnGLError("renderer constructor - loadTextures()");
 
-        if (isPostProcessingEnabled) {
+        if (config.isPostProcessingEnabled) {
             setUpDepthOfFieldBuffer();
             setUpVelocityBuffers();
         }
@@ -218,7 +212,6 @@ public class Engine {
         if (!glfwInit())
             throw new IllegalStateException("Unable to initialize GLFW");
 
-        // Configure window
         glfwDefaultWindowHints(); // Optional. The current window hints are already the default.
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE); // The window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // The window will be resizable
@@ -229,10 +222,13 @@ public class Engine {
 
         final DisplayMode mode = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
         screenDimension = new Dimension(mode.getWidth(), mode.getHeight());
-        //final long monitor = glfwGetPrimaryMonitor();   // Fullscreen TODO from config
-        final long monitor = NULL;  // Windowed
-        window = glfwCreateWindow((int) screenDimension.getWidth(), (int) screenDimension.getHeight(), WINDOW_TITLE,
-                monitor, NULL);
+        if (config.isFullScreen) {
+            window = glfwCreateWindow((int) screenDimension.getWidth(), (int) screenDimension.getHeight(), WINDOW_TITLE,
+                    glfwGetPrimaryMonitor(), NULL);
+        } else {
+            window = glfwCreateWindow((int) screenDimension.getWidth(), (int) screenDimension.getHeight(), WINDOW_TITLE,
+                    NULL, NULL);
+        }
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
         glfwSetKeyCallback(window, new InputHandler());
@@ -258,11 +254,11 @@ public class Engine {
         loadDefaultShaders();
         loadSkyBoxShaders();    // TODO shadow color via uniform
         loadMonoScreenShaders();
-        if (isPostProcessingEnabled) {
+        if (config.isPostProcessingEnabled) {
             loadPostProcessShaders();
             loadVelocityMapShaders();
         }
-        if (isRayTracingModeEnabled) loadRayTracingShaders();
+        if (config.renderMode == RAY_TRACING) loadRayTracingShaders();
         exitOnGLError("loadShaders()");
     }
 
@@ -648,7 +644,7 @@ public class Engine {
 
     private void setUpProjectionMatrix() {
         projectionMatrix = new Matrix4f();
-        final float fieldOfView = 60f;  // TODO from config
+        final float fieldOfView = config.fieldOfViewDeg;
         final float aspectRatio = (float) screenDimension.width / (float) screenDimension.height;
         final float nearPlaneDistance = PROJECTION_NEAR;//0f;
         final float farPlaneDistance = PROJECTION_FAR;//20000f;
@@ -890,7 +886,7 @@ public class Engine {
         eyePosTemp = avatar.getPosition().getSumWith(lookDirection.getReverse().getMultipliedBy(TPS_DISTANCE_Z))
                 .getSumWith(Vector3fExt.Y_UNIT_VECTOR.getMultipliedBy(TPS_DISTANCE_Y));
         eyePosition.add(eyePosTemp.getThisMinus(eyePosition).getMultipliedBy(EYE_FOLLOW_FACTOR));
-        if (isEyeIdleMovementEnabled) {
+        if (config.isEyeIdleMovementEnabled) {
             eyePosition.add((new Vector3fExt(0,
                     (float) sin(EYE_IDLE_ANGULAR_FREQUENCY_RAD_PER_NS * System.nanoTime()), 0))
                     .getMultipliedBy(EYE_IDLE_FACTOR));
@@ -902,7 +898,7 @@ public class Engine {
         if (isVTargetSet) avatar.addVDriveForce(velocityTarget, V_DRIVE_FACTOR);
         if (isDashTargetSet) avatar.addSpringForce(dashTarget, Object3d.DEFAULT_STIFFNESS);
         avatar.addForce(dashTarget.getThisMinus(avatar.getPosition()).getWithLength(1000000000000000f));
-        if (isGravityOn) avatar.addForce(new Vector3fExt(0,
+        if (config.isGravityOn) avatar.addForce(new Vector3fExt(0,
                 -Object3d.GRAVITY_ACCEL_EARTH * avatar.getMass(), 0));
         avatar.addMediumForce(Object3d.DEFAULT_VISCOSITY);
 
@@ -930,7 +926,7 @@ public class Engine {
         for (final Object3d inertObject : inertObjects) {
             inertObject.resetForce();
 
-            if (isGravityOn)
+            if (config.isGravityOn)
                 inertObject.addForce(new Vector3fExt(0, -Object3d.GRAVITY_ACCEL_EARTH * inertObject.getMass(), 0));
 
             for (final Object3d staticObject : staticObjects) {
@@ -942,9 +938,10 @@ public class Engine {
             if (InputHandler.isKeyDown(GLFW_KEY_G)) {
                 inertObject.addSpringForce(avatar.getPosition(), Object3d.DEFAULT_STIFFNESS);
                 inertObject.addMediumForce(Object3d.DEFAULT_VISCOSITY);
-                //inertObjects.get(i).addGravitationalForce(player.getCenter(), player.getMass());  // TODO from game config
+                if (config.isAvatarPowerGravityPullEnabled) {
+                    inertObject.addGravitationalForce(avatar.getPosition(), avatar.getMass());
+                }
             }
-            //inertObjects.get(i).addSpringForce(player.getStiffness(), player.getCenter());    // TODO from game config
             inertObject.update(Vector3fExt.NULL_VECTOR);
         }
 
@@ -988,52 +985,45 @@ public class Engine {
     }
 
     private void render() {
-        if (isRayTracingModeEnabled) {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            glUseProgram(rayTracingProgramIndex);
-            glUniform3f(rayTracingUniformIndices[U_EYEPOSITION_MAP], eyePosTemp.getX(), eyePosTemp.getY(), eyePosTemp.getZ());
-            glUniform3f(rayTracingUniformIndices[U_LIGHTPOSITION_MAP], lightPosition.getX(), lightPosition.getY(), lightPosition.getZ());
-            glUniform3f(rayTracingUniformIndices[U_LOOKDIR_MAP], lookDirection.getX(), lookDirection.getY(), lookDirection.getZ());
-            glUniform3f(rayTracingUniformIndices[U_RIGHTDIR_MAP], rightDirection.getX(), rightDirection.getY(), rightDirection.getZ());
-            glUniform3f(rayTracingUniformIndices[U_AVATARPOS_MAP], avatar.getPosition().getX(), avatar.getPosition().getY(), avatar.getPosition().getZ());
-            glUniform2f(rayTracingUniformIndices[U_SCREENDIM_MAP], (float) screenDimension.getWidth(), (float) screenDimension.getHeight());
-
-            glActiveTexture(GL_TEXTURE0 + NORMALMAP_TEXTURE_UNIT);
-            glBindTexture(GL_TEXTURE_2D, avatar.getNormalMapTexIndex());
-            final int normalMapUnifIndex = glGetUniformLocation(rayTracingProgramIndex, NORMAL_MAP_LABEL);
-            glUniform1i(normalMapUnifIndex, NORMALMAP_TEXTURE_UNIT);
-
-            postProcessQuad.render(ignorerUniformIndices, viewMatrix, projectionMatrix);
-            exitOnGLError("at rendering ray tracing screen quad.");
-
-            glUseProgram(0);
-            exitOnGLError("glUseProgram detach in ray tracing render cycle");
-
-            glfwSwapBuffers(window);
-        } else {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-
-            if (isPostProcessingEnabled) preparePostProcessing();   // TODO DoF as a separate, 1st GPU pass
-
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            glUseProgram(skyBoxProgramIndex);
-            skyBox.render(skyBoxUniformIndices, viewMatrix, projectionMatrix);
-
-            glUseProgram(defaultProgramIndex);
-            exitOnGLError("in " + this.getClass().getSimpleName() + " at glUseProgram(defaultProgramIndex)");
-            glUniform3f(defaultUniformIndices[U_EYEPOSITION_MAP], eyePosTemp.getX(), eyePosTemp.getY(), eyePosTemp.getZ());
-            glUniform3f(defaultUniformIndices[U_LIGHTPOSITION_MAP], lightPosition.getX(), lightPosition.getY(), lightPosition.getZ());
-
-            renderWorldObjects(defaultUniformIndices);
-
-            if (isShadowsEnabled) renderShadows();
-            if (isPostProcessingEnabled) postProcess();
-
-            glUseProgram(0);
-            exitOnGLError("glUseProgram detach in render cycle");
-
-            glfwSwapBuffers(window);
+        switch (config.renderMode) {
+            case RAY_TRACING -> {
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                glUseProgram(rayTracingProgramIndex);
+                glUniform3f(rayTracingUniformIndices[U_EYEPOSITION_MAP], eyePosTemp.getX(), eyePosTemp.getY(), eyePosTemp.getZ());
+                glUniform3f(rayTracingUniformIndices[U_LIGHTPOSITION_MAP], lightPosition.getX(), lightPosition.getY(), lightPosition.getZ());
+                glUniform3f(rayTracingUniformIndices[U_LOOKDIR_MAP], lookDirection.getX(), lookDirection.getY(), lookDirection.getZ());
+                glUniform3f(rayTracingUniformIndices[U_RIGHTDIR_MAP], rightDirection.getX(), rightDirection.getY(), rightDirection.getZ());
+                glUniform3f(rayTracingUniformIndices[U_AVATARPOS_MAP], avatar.getPosition().getX(), avatar.getPosition().getY(), avatar.getPosition().getZ());
+                glUniform2f(rayTracingUniformIndices[U_SCREENDIM_MAP], (float) screenDimension.getWidth(), (float) screenDimension.getHeight());
+                glActiveTexture(GL_TEXTURE0 + NORMALMAP_TEXTURE_UNIT);
+                glBindTexture(GL_TEXTURE_2D, avatar.getNormalMapTexIndex());
+                final int normalMapUnifIndex = glGetUniformLocation(rayTracingProgramIndex, NORMAL_MAP_LABEL);
+                glUniform1i(normalMapUnifIndex, NORMALMAP_TEXTURE_UNIT);
+                postProcessQuad.render(ignorerUniformIndices, viewMatrix, projectionMatrix);
+                exitOnGLError("at rendering ray tracing screen quad.");
+                glUseProgram(0);
+                exitOnGLError("glUseProgram detach in ray tracing render cycle");
+                glfwSwapBuffers(window);
+            }
+            case TRADITIONAL -> {
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+                if (config.isPostProcessingEnabled)
+                    preparePostProcessing();   // TODO DoF as a separate, 1st GPU pass
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                glUseProgram(skyBoxProgramIndex);
+                skyBox.render(skyBoxUniformIndices, viewMatrix, projectionMatrix);
+                glUseProgram(defaultProgramIndex);
+                exitOnGLError("in " + this.getClass().getSimpleName() + " at glUseProgram(defaultProgramIndex)");
+                glUniform3f(defaultUniformIndices[U_EYEPOSITION_MAP], eyePosTemp.getX(), eyePosTemp.getY(), eyePosTemp.getZ());
+                glUniform3f(defaultUniformIndices[U_LIGHTPOSITION_MAP], lightPosition.getX(), lightPosition.getY(), lightPosition.getZ());
+                renderWorldObjects(defaultUniformIndices);
+                if (config.isShadowsEnabled) renderShadows();
+                if (config.isPostProcessingEnabled) postProcess();
+                glUseProgram(0);
+                exitOnGLError("glUseProgram detach in render cycle");
+                glfwSwapBuffers(window);
+            }
+            default -> throw new IllegalArgumentException("Invalid render mode: " + config.renderMode);
         }
     }
 
@@ -1041,7 +1031,7 @@ public class Engine {
         glUseProgram(defaultProgramIndex);
         exitOnGLError("in " + this.getClass().getSimpleName() + " at glUseProgram() at drawing shadow volumes");
 
-        if (!isShadowVolumesVisible) {
+        if (!config.isShadowVolumesVisible) {
             glColorMask(false, false, false, false);
         }
         glDepthMask(false);

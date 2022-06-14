@@ -4,7 +4,11 @@ import com.kristof.gameengine.engine.Engine;
 
 public class Main {
 	public static void main(String[] argv) {
-    	Engine engine = new Engine();
-    	engine.run();
+		try {
+			final Engine engine = new Engine("engine.ini");
+			engine.run();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
