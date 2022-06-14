@@ -17,8 +17,8 @@ public class ScreenQuad extends Object3d {
     }
 
     @Override
-    public Object3dBO getPrototype() {
-        return sScreenQuadPrototype;
+    protected Object3dBO getGlBufferObject() {
+        return ScreenQuadBO.getInstance();
     }
 
     @Override

@@ -1,14 +1,14 @@
-package com.kristof.gameengine.object3d;
+package com.kristof.gameengine.objobject;
 
 import java.util.List;
 import java.util.Vector;
 
-public class OBJFaceIndexData {
+public class OBJFace {
     private final short[] vertexIndices;
     private final short[] normalIndices;
     private final short[] texCoordIndices;
 
-    public OBJFaceIndexData() {
+    public OBJFace() {
         vertexIndices = new short[3];
         vertexIndices[0] = -1;
         vertexIndices[1] = -1;
@@ -17,7 +17,7 @@ public class OBJFaceIndexData {
         texCoordIndices = new short[3];
     }
 
-    public OBJFaceIndexData(short vertexIndex1, short vertexIndex2, short vertexIndex3, short normalIndex) {
+    public OBJFace(short vertexIndex1, short vertexIndex2, short vertexIndex3, short normalIndex) {
         vertexIndices = new short[3];
         vertexIndices[0] = vertexIndex1;
         vertexIndices[1] = vertexIndex2;
@@ -26,8 +26,8 @@ public class OBJFaceIndexData {
         texCoordIndices = new short[3];
     }
 
-    public OBJFaceIndexData(short vertexIndex1, short vertexIndex2, short vertexIndex3, short normalIndex1,
-                            short normalIndex2, short normalIndex3) {
+    public OBJFace(short vertexIndex1, short vertexIndex2, short vertexIndex3, short normalIndex1, short normalIndex2,
+                   short normalIndex3) {
         vertexIndices = new short[3];
         vertexIndices[0] = vertexIndex1;
         vertexIndices[1] = vertexIndex2;
@@ -41,9 +41,8 @@ public class OBJFaceIndexData {
         texCoordIndices = new short[3];
     }
 
-    public OBJFaceIndexData(short vertexIndex1, short vertexIndex2, short vertexIndex3, short normalIndex1,
-                            short normalIndex2, short normalIndex3, short texCoordIndex1, short texCoordIndex2,
-                            short texCoordIndex3) {
+    public OBJFace(short vertexIndex1, short vertexIndex2, short vertexIndex3, short normalIndex1, short normalIndex2,
+                   short normalIndex3, short texCoordIndex1, short texCoordIndex2, short texCoordIndex3) {
         vertexIndices = new short[3];
         vertexIndices[0] = vertexIndex1;
         vertexIndices[1] = vertexIndex2;
@@ -58,6 +57,7 @@ public class OBJFaceIndexData {
         texCoordIndices[0] = texCoordIndex1;
         texCoordIndices[1] = texCoordIndex2;
         texCoordIndices[2] = texCoordIndex3;
+
     }
 
     public short getNormalIndex(int index) {
@@ -80,19 +80,19 @@ public class OBJFaceIndexData {
     }
 
     public List<Short> getNormalIndices() {
-        List<Short> normalIndices = new Vector<>();
-        normalIndices.add(this.normalIndices[0]);
-        normalIndices.add(this.normalIndices[1]);
-        normalIndices.add(this.normalIndices[2]);
-        return normalIndices;
+        List<Short> normalIndexList = new Vector<>();
+        normalIndexList.add(normalIndices[0]);
+        normalIndexList.add(normalIndices[1]);
+        normalIndexList.add(normalIndices[2]);
+        return normalIndexList;
     }
 
     public List<Short> getTexCoordIndices() {
-        List<Short> texCoordIndices = new Vector<>();
-        texCoordIndices.add(this.texCoordIndices[0]);
-        texCoordIndices.add(this.texCoordIndices[1]);
-        texCoordIndices.add(this.texCoordIndices[2]);
-        return texCoordIndices;
+        List<Short> texCoordIndexList = new Vector<>();
+        texCoordIndexList.add(texCoordIndices[0]);
+        texCoordIndexList.add(texCoordIndices[1]);
+        texCoordIndexList.add(texCoordIndices[2]);
+        return texCoordIndexList;
     }
 
     public short getNormalOfVertex(int vertexIndex) {
@@ -102,12 +102,12 @@ public class OBJFaceIndexData {
         return (short) -1;
     }
 
-    public boolean isNeighbor(OBJFaceIndexData face2) {
-        int numCommonVertices = 0;
+    public boolean isNeighbor(OBJFace face2) {
+        int commonVertexCount = 0;
         for (final short vertexIndex : vertexIndices) {
-            if (face2.hasVertexIndex(vertexIndex)) numCommonVertices++;
+            if (face2.hasVertexIndex(vertexIndex)) commonVertexCount++;
         }
-        return numCommonVertices == 2;
+        return commonVertexCount == 2;
     }
 
     public boolean hasVertexIndex(short vIndex) {

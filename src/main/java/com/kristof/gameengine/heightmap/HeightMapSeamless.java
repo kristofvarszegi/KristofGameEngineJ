@@ -26,8 +26,9 @@ public class HeightMapSeamless extends Object3d {
         hMax = h;
     }
 
-    public Object3dBO getPrototype() {
-        return sHMapSPrototype;
+    @Override
+    protected Object3dBO getGlBufferObject() {
+        return HeightMapSeamlessBO.getInstance();
     }
 
     @Override

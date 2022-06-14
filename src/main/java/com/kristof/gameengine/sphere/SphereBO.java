@@ -1,5 +1,7 @@
 package com.kristof.gameengine.sphere;
 
+import com.kristof.gameengine.cuboid.CuboidBO;
+import com.kristof.gameengine.object3d.Object3dBO;
 import com.kristof.gameengine.util.Vector3fExt;
 import com.kristof.gameengine.object3d.ShortObject3dBO;
 
@@ -14,6 +16,19 @@ public class SphereBO extends ShortObject3dBO {
     private static final int DETAIL_LEVEL = 16;    // 50 is nice; 24 is the best compromise so far
     public static final int NUM_VERTICES_NS = DETAIL_LEVEL + 1;
     public static final int NUM_VERTICES_EW = DETAIL_LEVEL * 2;
+
+    private static volatile SphereBO instance;
+
+    public static Object3dBO getInstance() {
+        if (instance == null) {
+            synchronized (SphereBO.class) {
+                if (instance == null) {
+                    instance = new SphereBO();
+                }
+            }
+        }
+        return instance;
+    }
 
     @Override
     public void fillVertexAttribLists() {

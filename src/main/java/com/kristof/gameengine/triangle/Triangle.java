@@ -22,7 +22,7 @@ public class Triangle extends Plate {
     private float baseLengthLeftHalf = 0;
     private float baseLengthRightHalf = 0;
     private float height = 0;
-    private final TriangleBO bufferObject;
+    private final TriangleBO glBufferObject;
 
     /*
      * Constructors
@@ -67,7 +67,7 @@ public class Triangle extends Plate {
         height = this.vertex3.getThisMinus(this.vertex1).getDotProductWith(up);
         position = new Vector3fExt();
 
-        bufferObject = new TriangleBO(this.vertex1, this.vertex2, this.vertex3);
+        glBufferObject = new TriangleBO(this.vertex1, this.vertex2, this.vertex3);
     }
 
     public Triangle(Matrix4f rotationMatrix, Vector3fExt velocity, Vector3fExt force, ColorVector color,
@@ -107,7 +107,7 @@ public class Triangle extends Plate {
         height = this.vertex3.getThisMinus(this.vertex1).getDotProductWith(up);
         position = new Vector3fExt();
 
-        bufferObject = new TriangleBO(this.vertex1, this.vertex2, this.vertex3);
+        glBufferObject = new TriangleBO(this.vertex1, this.vertex2, this.vertex3);
     }
 
     public Triangle(Triangle tr2) {    // Deep copy ctor
@@ -127,7 +127,7 @@ public class Triangle extends Plate {
         height = vertex3.getThisMinus(vertex1).getDotProductWith(up);
         position = vertex1.getSumWith(right.getMultipliedBy(baseLengthLeftHalf));
 
-        bufferObject = new TriangleBO(vertex1, vertex2, vertex3);
+        glBufferObject = new TriangleBO(vertex1, vertex2, vertex3);
     }
 
     public Vector3fExt getVertex1() {
@@ -144,6 +144,11 @@ public class Triangle extends Plate {
 
     public float getAverageSize() {
         return Math.max(baseLengthLeftHalf, Math.max(baseLengthRightHalf, height));
+    }
+
+    @Override
+    protected Object3dBO getGlBufferObject() {
+        return glBufferObject;
     }
 
     @Override
@@ -233,11 +238,6 @@ public class Triangle extends Plate {
         shVxPos.add(vertex2.getSumWith(position));
         shVxPos.add(vertex3.getSumWith(position));
         return shVxPos;
-    }
-
-    @Override
-    public Object3dBO getPrototype() {
-        return bufferObject;
     }
 
     @Override

@@ -1,16 +1,27 @@
 package com.kristof.gameengine.cuboid;
 
+import com.kristof.gameengine.object3d.Object3dBO;
 import com.kristof.gameengine.util.Vector3fExt;
 import com.kristof.gameengine.object3d.ByteObject3dBO;
 
 import org.lwjgl.opengl.GL11;
 
 public class CuboidBO extends ByteObject3dBO {
-	private static final float X_SIDE = 1;
+    private static volatile CuboidBO instance;
+
+    private static final float X_SIDE = 1;
     private static final float Y_SIDE = 1;
     private static final float Z_SIDE = 1;
 
-    public CuboidBO() {
+    public static Object3dBO getInstance() {
+        if (instance == null) {
+            synchronized (CuboidBO.class) {
+                if (instance == null) {
+                    instance = new CuboidBO();
+                }
+            }
+        }
+        return instance;
     }
 
     @Override

@@ -1,12 +1,23 @@
 package com.kristof.gameengine.screen;
 
+import com.kristof.gameengine.object3d.Object3dBO;
 import com.kristof.gameengine.util.Vector3fExt;
 import com.kristof.gameengine.object3d.ByteObject3dBO;
 
 import org.lwjgl.opengl.GL11;
 
 public class ScreenQuadBO extends ByteObject3dBO {
-    public ScreenQuadBO() {
+    private static volatile ScreenQuadBO instance;
+
+    public static Object3dBO getInstance() {
+        if (instance == null) {
+            synchronized (ScreenQuadBO.class) {
+                if (instance == null) {
+                    instance = new ScreenQuadBO();
+                }
+            }
+        }
+        return instance;
     }
 
     @Override

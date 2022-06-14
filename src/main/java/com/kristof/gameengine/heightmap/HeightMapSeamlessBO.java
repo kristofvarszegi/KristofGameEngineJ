@@ -1,5 +1,6 @@
 package com.kristof.gameengine.heightmap;
 
+import com.kristof.gameengine.object3d.Object3dBO;
 import com.kristof.gameengine.object3d.ShortObject3dBO;
 import com.kristof.gameengine.util.Vector3fExt;
 
@@ -8,10 +9,20 @@ import org.lwjgl.opengl.GL11;
 public class HeightMapSeamlessBO extends ShortObject3dBO {
     protected static final int A_DETAIL = 20, B_DETAIL = 20;    // Number of tiles
 
+    private static volatile HeightMapSeamlessBO instance;
+
     protected float a, b;
     protected HeightFunction hMFunc;
 
-    public HeightMapSeamlessBO() {
+    public static Object3dBO getInstance() {
+        if (instance == null) {
+            synchronized (HeightMapSeamlessBO.class) {
+                if (instance == null) {
+                    instance = new HeightMapSeamlessBO();
+                }
+            }
+        }
+        return instance;
     }
 
     @Override

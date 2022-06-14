@@ -25,6 +25,11 @@ public class Sphere extends Object3d {
     }
 
     @Override
+    protected Object3dBO getGlBufferObject() {
+        return SphereBO.getInstance();
+    }
+
+    @Override
     public float getCollisionRadius() {
         return radius;
     }
@@ -71,11 +76,6 @@ public class Sphere extends Object3d {
                     .add(position));
         }
         return shVxPos;
-    }
-
-    @Override
-    public Object3dBO getPrototype() {
-        return sSpherePrototype;
     }
 
     @Override

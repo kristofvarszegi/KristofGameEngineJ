@@ -83,8 +83,9 @@ public class Cuboid extends Object3d {
         faces.add(tmpFace);
     }
 
-    public Object3dBO getPrototype() {
-        return sCuboidPrototype;
+    @Override
+    protected Object3dBO getGlBufferObject() {
+        return CuboidBO.getInstance();
     }
 
     @Override

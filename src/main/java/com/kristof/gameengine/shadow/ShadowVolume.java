@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Vector;
 
 public class ShadowVolume extends Object3d {
+    public enum LIGHT_PARAM_TYPE {LIGHT_DIRECTION, LIGHT_POSITION}
+
     private final Vector3fExt lightParam;
     private final LIGHT_PARAM_TYPE lightType;
     private List<Vector3fExt> shadowVertices;
     private List<Integer> tokenSizes;
-
-    public enum LIGHT_PARAM_TYPE {LIGHT_DIRECTION, LIGHT_POSITION}
 
     public ShadowVolume(Vector3fExt lightParam, LIGHT_PARAM_TYPE lightType) {
         super(Vector3fExt.NULL_VECTOR, 0, 0, 0, Vector3fExt.UNIT_VECTOR,
@@ -134,7 +134,7 @@ public class ShadowVolume extends Object3d {
     }
 
     @Override
-    public Object3dBO getPrototype() {
+    protected Object3dBO getGlBufferObject() {
         throw new RuntimeException("getPrototype N/A for shadow volume");
     }
 

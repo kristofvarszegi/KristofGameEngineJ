@@ -1,5 +1,7 @@
-package com.kristof.gameengine.object3d;
+package com.kristof.gameengine.dummyobject;
 
+import com.kristof.gameengine.object3d.Object3d;
+import com.kristof.gameengine.object3d.Object3dBO;
 import com.kristof.gameengine.shadow.ShadowVolume;
 import com.kristof.gameengine.util.ColorVector;
 import com.kristof.gameengine.util.Material;
@@ -16,8 +18,7 @@ public class DummyObject3d extends Object3d {
     }
 
     @Override
-    public Object3dBO getPrototype() {
-        // TODO Auto-generated method stub
+    protected Object3dBO getGlBufferObject() {
         return null;
     }
 

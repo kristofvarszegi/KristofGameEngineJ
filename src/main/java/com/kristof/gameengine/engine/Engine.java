@@ -4,23 +4,12 @@ import static com.kristof.gameengine.shadow.ShadowVolume.LIGHT_PARAM_TYPE.LIGHT_
 import static com.kristof.gameengine.engine.EngineGLConstants.*;
 import static com.kristof.gameengine.engine.EngineMiscConstants.*;
 
-import com.kristof.gameengine.cuboid.Cuboid;
-import com.kristof.gameengine.cuboid.CuboidBO;
-import com.kristof.gameengine.heightmap.HeightMapSeamless;
-import com.kristof.gameengine.heightmap.HeightMapSeamlessBO;
 import com.kristof.gameengine.io.InputHandler;
-import com.kristof.gameengine.object3d.DummyObject3d;
-import com.kristof.gameengine.object3d.OBJObject3dBO;
 import com.kristof.gameengine.object3d.Object3d;
-import com.kristof.gameengine.object3d.Object3dBO;
+import com.kristof.gameengine.object3d.Object3dFactory;
 import com.kristof.gameengine.screen.ScreenQuad;
-import com.kristof.gameengine.screen.ScreenQuadBO;
 import com.kristof.gameengine.shadow.ShadowVolume;
 import com.kristof.gameengine.shadow.ShadowVolumeBO;
-import com.kristof.gameengine.skybox.SkyBox;
-import com.kristof.gameengine.skybox.SkyBoxBO;
-import com.kristof.gameengine.sphere.Sphere;
-import com.kristof.gameengine.sphere.SphereBO;
 import com.kristof.gameengine.util.*;
 
 import static com.kristof.gameengine.util.Utils.*;
@@ -54,11 +43,8 @@ import java.util.*;
 import java.util.List;
 
 public class Engine {
-    private final List<Object3dBO> prototypes;
-    private OBJObject3dBO objBlobBO;    // TODO fix support
-
     private Object3d avatar;
-    private SkyBox skyBox;
+    private Object3d skyBox;
     private final List<Object3d> staticObjects;
     private final List<Object3d> inertObjects;
     private ShadowVolumeBO staticShadowVolumeBO;
@@ -182,8 +168,6 @@ public class Engine {
         staticObjects = new Vector<>();
         inertObjects = new Vector<>();
 
-        prototypes = new Vector<>();
-
         initGL();
         exitOnGLError("renderer constructor - initOpenGL()");
         inputHistory = new Vector<>();
@@ -208,8 +192,6 @@ public class Engine {
         setUpProjectionMatrix();
         setUpViewMatrix();
         prevVPMatrix = new Matrix4f();
-
-        initObject3dPrototypes();
 
         postProcessQuad = new ScreenQuad();
         shadowQuad = new ScreenQuad();
@@ -657,28 +639,6 @@ public class Engine {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    private void initObject3dPrototypes() {
-        final CuboidBO cuboidBO = new CuboidBO();
-        Object3d.setPrototype(Object3d.PROTOTYPE_NAMES.CUBOID, cuboidBO);
-        prototypes.add(cuboidBO);
-
-        final SphereBO sphereBO = new SphereBO();
-        Object3d.setPrototype(Object3d.PROTOTYPE_NAMES.SPHERE, sphereBO);
-        prototypes.add(sphereBO);
-
-        final SkyBoxBO skyBoxBO = new SkyBoxBO();
-        Object3d.setPrototype(Object3d.PROTOTYPE_NAMES.SKYBOX, skyBoxBO);
-        prototypes.add(skyBoxBO);
-
-        final ScreenQuadBO screenQuadBO = new ScreenQuadBO();
-        Object3d.setPrototype(Object3d.PROTOTYPE_NAMES.SCREENQUAD, screenQuadBO);
-        prototypes.add(screenQuadBO);
-
-        final HeightMapSeamlessBO heightMapSeamlessBO = new HeightMapSeamlessBO();
-        Object3d.setPrototype(Object3d.PROTOTYPE_NAMES.H_MAP_S, heightMapSeamlessBO);
-        prototypes.add(heightMapSeamlessBO);
-    }
-
     private void setUpViewMatrix() {
         viewMatrix = new Matrix4f();
         viewMatrix.rotate(lookPolarAngle - Vector3fExt.PI / 2f, new Vector3f(1f, 0, 0));
@@ -704,15 +664,15 @@ public class Engine {
     }
 
     public void initWorld() {   // TODO from scene assets
-        skyBox = new SkyBox(eyePosition, colorMapIndices.get(TEXTURE_ASSET_KEYS.SPACE_CLOUDS),
+        skyBox = Object3dFactory.createSkyBox(eyePosition, colorMapIndices.get(TEXTURE_ASSET_KEYS.SPACE_CLOUDS),
                 normalMapIndices.get(TEXTURE_ASSET_KEYS.BLUE));
 
-        /*avatar = new Cuboid(new Vector3fExt(0, 0, 0), 0, 0, 0, false,
-                Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.BLUE, Material.CHROME,
+        /*avatar = Object3dFactory.createCuboid(new Vector3fExt(0, 0, 0), 0, 0,
+                0, Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.BLUE, Material.CHROME,
                 colorMapIndices.get(TEXTURE_ASSET_KEYS.MANHOLE), normalMapIndices.get(TEXTURE_ASSET_KEYS.MANHOLE),
                 0.5f, 0.5f, 0.5f);*/
-        avatar = new Sphere(new Vector3fExt(0, 4f, 0), 0, 0, 0,
-                Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.BLUE, Material.PEARL,
+        avatar = Object3dFactory.createSphere(new Vector3fExt(0, 4f, 0), 0, 0,
+                0, Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.BLUE, Material.PEARL,
                 colorMapIndices.get(TEXTURE_ASSET_KEYS.MTL_TRIM01),
                 normalMapIndices.get(TEXTURE_ASSET_KEYS.MTL_TRIM01), 0.4f);
 
@@ -734,15 +694,14 @@ public class Engine {
                 Material.CHROME, colorMapIndices.get(TEXTURE_ASSET_KEYS.MANHOLE),
                 normalMapIndices.get(TEXTURE_ASSET_KEYS.MANHOLE), childObjectSize, childObjectSize, childObjectSize));*/
 
-        staticObjects.add(new HeightMapSeamless(new Vector3fExt(0, -5f, 0), 0,
-                0, 0, Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.BLUE,
-                Material.PEARL, colorMapIndices.get(TEXTURE_ASSET_KEYS.BROKEN),
+        staticObjects.add(Object3dFactory.createHeightMapSeamless(new Vector3fExt(0, -5f, 0),
+                0, 0, 0, Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR,
+                ColorVector.BLUE, Material.PEARL, colorMapIndices.get(TEXTURE_ASSET_KEYS.BROKEN),
                 normalMapIndices.get(TEXTURE_ASSET_KEYS.BROKEN), 40f, 40f, 1f));
-
-        /*staticObjects.add(new Rectangle(new Vector3fExt(0, 0, 0), 0, 0,
-                (float) Math.toRadians(45), Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.BLUE,
-                Material.PEARL, colorMapIndices.get(TEXTURE_ASSET_KEYS.CRACKED),
-                normalMapIndices.get(TEXTURE_ASSET_KEYS.CRACKED), 100f, 100f, false));*/
+        /*staticObjects.add(Object3dFactory.createRectangle(new Vector3fExt(0, 0, 0), 0,
+                0, (float) Math.toRadians(45), Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR,
+                ColorVector.BLUE, Material.PEARL, colorMapIndices.get(TEXTURE_ASSET_KEYS.DIAGONAL),
+                normalMapIndices.get(TEXTURE_ASSET_KEYS.DIAGONAL), 100f, 100f, false));*/
 
         // 3D cube grid TODO from level assets
         /*final int n = 3;
@@ -752,7 +711,8 @@ public class Engine {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 for (int k = 0; k < n; k++) {
-                    staticObjects.add(new Cuboid(new Vector3fExt(o - i * d, o + j * d, o - k * d),
+                    staticObjects.add(Object3dFactory.createCuboid(
+                            new Vector3fExt(o - i * d, o + j * d, o - k * d),
                             0, 0, 0,
                             Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR,
                             ColorVector.BLUE, Material.CHROME,
@@ -770,7 +730,8 @@ public class Engine {
         float r;
         for (int i = 0; i < n; i++) {
             r = 0.2f + (float) (0.3f * Math.random());
-            inertObjects.add(new Sphere(Vector3fExt.randomVector(0.01f).getSumWith(i * d, h, i * d),
+            inertObjects.add(Object3dFactory.createSphere(
+                    Vector3fExt.randomVector(0.01f).getSumWith(i * d, h, i * d),
                     0, (float) Math.toRadians(120), 0, Vector3fExt.NULL_VECTOR,
                     Vector3fExt.NULL_VECTOR, ColorVector.BLUE, Material.SILVER,
                     colorMapIndices.get(TEXTURE_ASSET_KEYS.MTL_TRIM01),
@@ -1204,7 +1165,7 @@ public class Engine {
             }
             staticShadowVolumeBO = new ShadowVolumeBO(staticShadowVolumeData);
         }
-        staticShadowVolumeBO.render(uniformIndices, vMatrix, pMatrix, new DummyObject3d());
+        staticShadowVolumeBO.render(uniformIndices, vMatrix, pMatrix, Object3dFactory.createDummyObject3d());
 
         for (final Object3d inertObject : inertObjects) {
             inertObject.renderDynamicShadow(uniformIndices, vMatrix, pMatrix, lightParam);
@@ -1214,10 +1175,6 @@ public class Engine {
     }
 
     private void destroy() {
-        for (final Object3dBO prototype : prototypes) {
-            prototype.destroy();
-        }
-
         avatar.destroyShadowVolume();
         // TODO destroy all shadow volumes
 

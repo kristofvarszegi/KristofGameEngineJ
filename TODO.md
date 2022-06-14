@@ -1,11 +1,10 @@
 
-* BOs in shape implementations instead of in top parent and engine
-* Object factory
 * Render config from file
 * Separate BOs for Tri and Rect
 * Create the scene
 * Logger
 * Unit tests
+* README
 * Fix shader var naming format and const correctness
 * Pass eye pos to the fs, not the vs
 * Frustum angle to vary with speed

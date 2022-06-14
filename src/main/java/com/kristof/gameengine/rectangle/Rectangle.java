@@ -16,7 +16,7 @@ import static com.kristof.gameengine.shadow.ShadowVolume.LIGHT_PARAM_TYPE.LIGHT_
 public class Rectangle extends Plate {
     private final float aSize;
     private final float bSize;
-    private RectangleBO bufferObject;
+    private RectangleBO glBufferObject;
 
     /*
      * Constructors
@@ -36,7 +36,7 @@ public class Rectangle extends Plate {
         normal.multiplyBy(rotationMatrix);
         right.multiplyBy(rotationMatrix);
         up = Vector3fExt.crossProduct(normal, right);
-        if (!isGhost) bufferObject = new RectangleBO(aSide, bSide);
+        if (!isGhost) glBufferObject = new RectangleBO(aSide, bSide);
     }
 
     public Rectangle(Vector3fExt position, Matrix4f rotationMatrix, Vector3fExt velocity, Vector3fExt force,
@@ -51,7 +51,7 @@ public class Rectangle extends Plate {
         normal.multiplyBy(this.rotationMatrix);
         right.multiplyBy(this.rotationMatrix);
         up = Vector3fExt.crossProduct(normal, right);
-        if (!isGhost) bufferObject = new RectangleBO(aSide, bSide);
+        if (!isGhost) glBufferObject = new RectangleBO(aSide, bSide);
     }
 
     public Rectangle(Rectangle rect2, boolean isGhost) {    // Deep copy ctor
@@ -66,7 +66,7 @@ public class Rectangle extends Plate {
         neighborIDs = new int[4];
         int[] rect2NIDs = rect2.getNeighborIDs();
         System.arraycopy(rect2NIDs, 0, neighborIDs, 0, 4);
-        if (!isGhost) bufferObject = new RectangleBO(aSize, aSize);
+        if (!isGhost) glBufferObject = new RectangleBO(aSize, aSize);
     }
 
     public float getASize() {
@@ -75,6 +75,11 @@ public class Rectangle extends Plate {
 
     public float getBSize() {
         return bSize;
+    }
+
+    @Override
+    protected Object3dBO getGlBufferObject() {
+        return glBufferObject;
     }
 
     @Override
@@ -173,11 +178,6 @@ public class Rectangle extends Plate {
         shVxPos.add(Vector3fExt.add(right.getMultipliedBy(ap2), up.getMultipliedBy(bp2)).getSumWith(position));
         shVxPos.add(Vector3fExt.add(right.getMultipliedBy(-ap2), up.getMultipliedBy(bp2)).getSumWith(position));
         return shVxPos;
-    }
-
-    @Override
-    public Object3dBO getPrototype() {
-        return bufferObject;
     }
 
     @Override

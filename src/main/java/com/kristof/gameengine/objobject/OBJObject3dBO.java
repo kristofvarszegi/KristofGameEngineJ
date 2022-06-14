@@ -1,5 +1,8 @@
-package com.kristof.gameengine.object3d;
+package com.kristof.gameengine.objobject;
 
+import com.kristof.gameengine.object3d.Edge;
+import com.kristof.gameengine.object3d.Object3d;
+import com.kristof.gameengine.object3d.ShortObject3dBO;
 import com.kristof.gameengine.shadow.ShadowVolume;
 import com.kristof.gameengine.triangle.Triangle;
 import com.kristof.gameengine.util.ColorVector;

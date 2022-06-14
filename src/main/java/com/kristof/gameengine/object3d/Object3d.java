@@ -1,17 +1,13 @@
 package com.kristof.gameengine.object3d;
 
-import com.kristof.gameengine.skybox.SkyBoxBO;
+import com.kristof.gameengine.dummyobject.DummyObject3d;
 import com.kristof.gameengine.util.ColorVector;
 import com.kristof.gameengine.util.Material;
 import com.kristof.gameengine.util.Matrix4f;
 import com.kristof.gameengine.util.Vector3fExt;
-import com.kristof.gameengine.cuboid.CuboidBO;
-import com.kristof.gameengine.heightmap.HeightMapSeamlessBO;
 
-import com.kristof.gameengine.screen.ScreenQuadBO;
 import com.kristof.gameengine.shadow.ShadowVolume;
 import com.kristof.gameengine.shadow.ShadowVolumeBO;
-import com.kristof.gameengine.sphere.SphereBO;
 
 import java.util.List;
 import java.util.Vector;
@@ -74,15 +70,6 @@ public abstract class Object3d {
     protected boolean isShadowEnabled;
 
     protected boolean isCollisionPVSet;
-
-    protected static CuboidBO sCuboidPrototype;
-    protected static HeightMapSeamlessBO sHMapSPrototype;
-    protected static ScreenQuadBO sScreenQuadPrototype;
-    protected static SkyBoxBO sSkyBoxPrototype;
-    protected static SphereBO sSpherePrototype;
-    protected static OBJObject3dBO sHandPrototype;
-    protected static OBJObject3dBO sOBJTestPrototype;
-    protected static OBJObject3dBO sOBJBlobPrototype;
 
     private Object3d(Vector3fExt position, Vector3fExt scale, Vector3fExt velocity, Vector3fExt force,
                      ColorVector color, Material material, int colorMapTexIndex, int normalMapTexIndex) {
@@ -250,19 +237,6 @@ public abstract class Object3d {
         return prevModelMatrix;
     }
 
-    public static void setPrototype(PROTOTYPE_NAMES name, Object3dBO prototype) {
-        switch (name) {
-            case CUBOID -> sCuboidPrototype = (CuboidBO) prototype;
-            case SCREENQUAD -> sScreenQuadPrototype = (ScreenQuadBO) prototype;
-            case SKYBOX -> sSkyBoxPrototype = (SkyBoxBO) prototype;
-            case SPHERE -> sSpherePrototype = (SphereBO) prototype;
-            case H_MAP_S -> sHMapSPrototype = (HeightMapSeamlessBO) prototype;
-            case HAND -> sHandPrototype = (OBJObject3dBO) prototype;
-            case OBJ_TEST -> sOBJTestPrototype = (OBJObject3dBO) prototype;
-            case OBJ_BLOB -> sOBJBlobPrototype = (OBJObject3dBO) prototype;
-        }
-    }
-
     public void calculateModelMatrix() {
         prevModelMatrix = new Matrix4f(modelMatrix);
         modelMatrix = new Matrix4f();
@@ -295,14 +269,11 @@ public abstract class Object3d {
         prevPosition = position.getCopy();
     }
 
+    protected abstract Object3dBO getGlBufferObject();
+
     public void render(int[] programUniformIndices, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
-        final Object3dBO pt = getPrototype();
-        exitOnGLError("in " + this.getClass().getSimpleName() + " at getting object BO prototype");
-        if (pt == null) {
-            System.out.println(this.getClass().getSimpleName() + " prototype not initialized");
-        } else {
-            pt.render(programUniformIndices, viewMatrix, projectionMatrix, this);
-        }
+        exitOnGLError("in " + this.getClass().getSimpleName() + " at getting object BO");
+        getGlBufferObject().render(programUniformIndices, viewMatrix, projectionMatrix, this);
         for (final Object3d childObject : childObjects) {
             childObject.render(programUniformIndices, viewMatrix, projectionMatrix);
         }
@@ -500,8 +471,6 @@ public abstract class Object3d {
         retVal[3] = collisionRotVelocity;
         return retVal;
     }
-
-    public abstract Object3dBO getPrototype();
 
     public abstract float getCollisionRadius();
 

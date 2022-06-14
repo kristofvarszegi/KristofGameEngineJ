@@ -16,7 +16,7 @@ public class PolyFace extends Object3d {
     private final List<Triangle> triangles;
     private int id;
     private int[] neighborIDs;
-    private PolyFaceBO bufferObject;
+    private PolyFaceBO glBufferObject;
 
     /*
      * Constructors
@@ -60,7 +60,7 @@ public class PolyFace extends Object3d {
 
         neighborIDs = new int[]{-1, -1, -1, -1};
 
-        bufferObject = new PolyFaceBO(vertexPositions);
+        glBufferObject = new PolyFaceBO(vertexPositions);
     }
 
     public PolyFace(int id, List<Vector3fExt> verticesCCW, int colorMapTexIndex, int normalMapTexIndex) {    // CCW if normal it is pointed to my eye
@@ -90,7 +90,7 @@ public class PolyFace extends Object3d {
                     Vector3fExt.NULL_VECTOR, ColorVector.MAGENTA, Material.PEARL, -1, -1,
                     averagePos, verticesCCW.get(verticesCCW.size() - 1), verticesCCW.get(0)));
             neighborIDs = new int[vertexPositions.size()];
-            bufferObject = new PolyFaceBO(vertexPositions);
+            glBufferObject = new PolyFaceBO(vertexPositions);
         }
     }
 
@@ -112,7 +112,12 @@ public class PolyFace extends Object3d {
         for (int i = 0; i < neighborIDs.length; i++) {
             neighborIDs[i] = pf2.getNeighborId(i);
         }
-        bufferObject = new PolyFaceBO(vertexPositions);
+        glBufferObject = new PolyFaceBO(vertexPositions);
+    }
+
+    @Override
+    protected Object3dBO getGlBufferObject() {
+        return glBufferObject;
     }
 
     @Override
@@ -259,11 +264,6 @@ public class PolyFace extends Object3d {
         for (final Triangle triangle : triangles) {
             triangle.transform(modelMatrix, rotationMatrix);
         }
-    }
-
-    @Override
-    public Object3dBO getPrototype() {
-        return bufferObject;
     }
 
     @Override

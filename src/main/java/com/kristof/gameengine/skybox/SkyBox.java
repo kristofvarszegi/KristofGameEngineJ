@@ -17,8 +17,8 @@ public class SkyBox extends Object3d {
     }
 
     @Override
-    public Object3dBO getPrototype() {
-        return sSkyBoxPrototype;
+    protected Object3dBO getGlBufferObject() {
+        return SkyBoxBO.getInstance();
     }
 
     @Override

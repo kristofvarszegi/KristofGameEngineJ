@@ -1,5 +1,6 @@
 package com.kristof.gameengine.skybox;
 
+import com.kristof.gameengine.object3d.Object3dBO;
 import com.kristof.gameengine.util.Vector3fExt;
 import com.kristof.gameengine.object3d.ByteObject3dBO;
 
@@ -11,7 +12,17 @@ public class SkyBoxBO extends ByteObject3dBO {
     private static final float SIDE = 0.9f * INFINITY;
     private static final float TEX_EPSILON = 0.0008f;
 
-    public SkyBoxBO() {
+    private static volatile SkyBoxBO instance;
+
+    public static Object3dBO getInstance() {
+        if (instance == null) {
+            synchronized (SkyBoxBO.class) {
+                if (instance == null) {
+                    instance = new SkyBoxBO();
+                }
+            }
+        }
+        return instance;
     }
 
     @Override
