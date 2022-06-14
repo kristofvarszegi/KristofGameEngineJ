@@ -1,0 +1,61 @@
+package com.kristof.gameengine.engine;
+
+public class EngineGLConstants {
+    static final String M_MATRIX_LABEL = "u_MMatrix";
+    static final String V_MATRIX_LABEL = "u_VMatrix";
+    static final String P_MATRIX_LABEL = "u_PMatrix";
+    static final String VP_MATRIX_INV_LABEL = "u_VPMatrixInv";
+    static final String PREV_VP_MATRIX_LABEL = "u_PrevVPMatrix";
+    static final String R_MATRIX_LABEL = "u_RMatrix";
+    static final String PREV_M_MATRIX_LABEL = "u_PrevMMatrix";
+    static final String COLOR_LABEL = "u_Color";
+    static final String MATERIAL_LABEL = "u_Material";
+    static final String EYE_POS_LABEL = "u_EyePosition";
+    static final String LIGHT_POS_LABEL = "u_LightPosition";
+    static final String VELOCITY_MAP_LABEL = "U_VelocityMap";
+    static final String EYE_VELOCITY_LABEL = "u_EyeVelocity";
+    static final String LOOK_DIRECTION_LABEL = "u_LookDirection";
+    static final String RIGHT_DIRECTION_LABEL = "u_RightDirection";
+    static final String AVATAR_POS_LABEL = "u_AvatarPosition";
+    static final String SCREEN_DIM_LABEL = "u_ScreenDimension";
+    static final String COLOR_MAP_LABEL = "u_ColorMap";
+    static final String NORMAL_MAP_LABEL = "u_NormalMap";
+    static final String POST_PROCESS_MAP_LABEL = "u_PostProcessMap";
+    static final String DEPTH_MAP_LABEL = "u_DepthMap";
+    static final String VELOCITY_MAP1_LABEL = "u_VelocityMap1";
+    static final String VELOCITY_MAP2_LABEL = "u_VelocityMap2";
+    static final String POS_VA_LABEL = "in_Position";
+    static final String NOR_VA_LABEL = "in_Normal";
+    static final String TEX_VA_LABEL = "in_TexCoord";
+    static final String TAN_VA_LABEL = "in_Tangent";
+    static final int POS_VA_SHADER_INDEX = 0;
+    static final int NOR_VA_SHADER_INDEX = 1;
+    static final int TEX_VA_SHADER_INDEX = 2;
+    static final int TAN_VA_SHADER_INDEX = 3;
+
+    public static final int U_MMATRIX_MAP = 0;
+    public static final int U_VMATRIX_MAP = 1;
+    public static final int U_PMATRIX_MAP = 2;
+    public static final int U_RMATRIX_MAP = 3;
+    static final int U_PREV_MMATRIX_MAP = 4;
+    static final int U_COLOR_MAP = 5;
+    public static final int U_MATERIAL_MAP = 6;
+    static final int U_EYEPOSITION_MAP = 7;
+    static final int U_LIGHTPOSITION_MAP = 8;
+    static final int U_VELOCITY_MAP = 9;
+    static final int U_EYE_VELOCITY_MAP = 10;
+    public static final int U_COLORMAP_MAP = 11;
+    public static final int U_NORMALMAP_MAP = 12;
+    static final int U_LOOKDIR_MAP = 13;
+    static final int U_RIGHTDIR_MAP = 14;
+    static final int U_AVATARPOS_MAP = 15;
+    static final int U_SCREENDIM_MAP = 16;
+
+    public static final int COLORMAP_TEXTURE_UNIT = 0;
+    public static final int NORMALMAP_TEXTURE_UNIT = 1;
+    static final int TEXT_TEXTURE_UNIT = 3;
+    static final int POSTPROCESS_MAP_TEXTURE_UNIT = 10;
+    static final int DEPTH_MAP_TEXTURE_UNIT = 11;
+    static final int VELOCITY_MAP1_TEXTURE_UNIT = 12;
+    static final int VELOCITY_MAP2_TEXTURE_UNIT = 13;
+}
