@@ -21,6 +21,7 @@ public class EngineConfig {
     final boolean isPostProcessingEnabled;
 
     final boolean isAvatarPowerGravityPullEnabled;
+    final boolean isDragEnabled;
     final boolean isEyeIdleMovementEnabled;
     final boolean isGravityOn;
 
@@ -40,6 +41,7 @@ public class EngineConfig {
 
         isAvatarPowerGravityPullEnabled = ini.get(PHYSICS_GROUP_LABEL, "avatarPowerGravityPullEnabled",
                 boolean.class);
+        isDragEnabled = ini.get(PHYSICS_GROUP_LABEL, "dragEnabled", boolean.class);
         isEyeIdleMovementEnabled = ini.get(PHYSICS_GROUP_LABEL, "eyeIdleMovementEnabled", boolean.class);
         isGravityOn = ini.get(PHYSICS_GROUP_LABEL, "gravityEnabled", boolean.class);
     }

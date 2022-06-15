@@ -8,7 +8,6 @@ in vec3 pass_mPosition;
 in vec3 pass_Normal;
 in vec2 pass_TexCoord;
 in vec3 pass_Tangent;
-//in vec4 pass_Color;
 in vec3 pass_EyePosition;
 
 out vec4 out_Color;

@@ -14,12 +14,9 @@ in vec4 in_Tangent;
 out vec3 pass_Velocity;
 
 void main(void) {
-
 	vec4 prevPosition = u_PMatrix * u_VMatrix * u_PrevMMatrix * in_Position;
 	vec4 currPosition = u_PMatrix * u_VMatrix * u_MMatrix * in_Position;
-	pass_Velocity = 0.5 * ( vec3(currPosition - prevPosition) + vec3(1.0, 1.0, 1.0) );	// transform to [0, 1]
-	//float l = length(pass_Velocity);
+	pass_Velocity = 0.5 * (vec3(currPosition - prevPosition) + vec3(1.0, 1.0, 1.0));	// transform to [0, 1]
 	if (length(pass_Velocity) < 0.01)pass_Velocity = vec3(0.0, 0.0, 0.0);
 	gl_Position = vec4(prevPosition);
-	//gl_Position = u_PMatrix * u_VMatrix * u_MMatrix * in_Position;
 }

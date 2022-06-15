@@ -1,14 +1,11 @@
 
-* Create the scene
 * Logger
 * Unit tests
-* README
-* Fix shader var naming format and const correctness
 * Pass eye pos to the fs, not the vs
 * Frustum angle to vary with speed
 * Fix cuboid shadow geometry
 * Fix child object position for render and shadows
-* DoF
+* Fix DoF buffers
 * Assets, scene info from file
 * Fix screenshot in fullscreen
 * Revive OBJ support

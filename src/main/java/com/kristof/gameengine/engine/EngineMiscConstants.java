@@ -20,7 +20,7 @@ public class EngineMiscConstants {
     static final float EYE_IDLE_FACTOR = 0.02f;
     static final float EYE_FOLLOW_FACTOR = 0.7f;
     static final float EYE_ROT_FOLLOW_FACTOR = 0.99f;
-    static final float V_DRIVE_FACTOR = 1000000000000000f;
+    static final float V_DRIVE_FACTOR = 100000000000000f;
     static final float TPS_DISTANCE_Y = 0.5f;
     static final float TPS_DISTANCE_Z = 4.5f;
     static final Vector3fExt RESET_POSITION = new Vector3fExt(0, 2f, 0);
@@ -28,6 +28,6 @@ public class EngineMiscConstants {
     static final float EYE_IDLE_ANGULAR_FREQUENCY_RAD_PER_NS = 0.000000003f;
 
     enum TEXTURE_ASSET_KEYS {
-        BLUE, BROKEN, SPACE_CLOUDS, DIAGONAL, MANHOLE, MTL_FLOOR02, MTL_TRIM01
+        BLUE, BROKEN, SPACE_CLOUDS, DIAGONAL, MANHOLE, MTL_FLOOR02, MTL_TRIM01, REDBRICK, WHITE
     }
 }

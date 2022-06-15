@@ -192,8 +192,7 @@ public class Vector3fExt {
     }
 
     public boolean equals(Object obj2) {    // Default implementation checks full identity, but floats need an epsilon range
-        if (obj2 instanceof Vector3fExt) {
-            final Vector3fExt svr2 = (Vector3fExt) obj2;
+        if (obj2 instanceof final Vector3fExt svr2) {
             if (Math.abs(coords[0] - svr2.getX()) > EQUALITY_RANGE) return false;
             if (Math.abs(coords[1] - svr2.getY()) > EQUALITY_RANGE) return false;
             if (Math.abs(coords[2] - svr2.getZ()) > EQUALITY_RANGE) return false;
@@ -296,9 +295,9 @@ public class Vector3fExt {
         if (i < 3 && i >= 0) coords[i] = c;
     }
 
-    public Vector3fExt add(Vector3fExt svr) {
+    public Vector3fExt add(Vector3fExt vec) {
         for (int i = 0; i < 3; i++) {
-            coords[i] += svr.getCoord(i);
+            coords[i] += vec.getCoord(i);
         }
         return this;
     }
@@ -310,24 +309,24 @@ public class Vector3fExt {
         return this;
     }
 
-    public Vector3fExt getSumWith(Vector3fExt svr2) {
-        return Vector3fExt.add(this, svr2);
+    public Vector3fExt getSumWith(Vector3fExt vec2) {
+        return Vector3fExt.add(this, vec2);
     }
 
     public Vector3fExt getSumWith(float x2, float y2, float z2) {
         return Vector3fExt.add(this, new Vector3fExt(x2, y2, z2));
     }
 
-    public Vector3fExt getThisMinus(Vector3fExt svr2) {
-        return Vector3fExt.substract(this, svr2);
+    public Vector3fExt getThisMinus(Vector3fExt vec2) {
+        return Vector3fExt.substract(this, vec2);
     }
 
-    public float getDistanceSquare(Vector3fExt svr2) {
-        return Vector3fExt.substract(this, svr2).getLengthSquare();
+    public float getDistanceSquare(Vector3fExt vec2) {
+        return Vector3fExt.substract(this, vec2).getLengthSquare();
     }
 
-    public float getDistance(Vector3fExt svr2) {
-        return Vector3fExt.substract(this, svr2).getLength();
+    public float getDistance(Vector3fExt vec2) {
+        return Vector3fExt.substract(this, vec2).getLength();
     }
 
     public Vector3fExt addX(float plusX) {
@@ -347,9 +346,9 @@ public class Vector3fExt {
         return this;
     }
 
-    public void substract(Vector3fExt svr) {
+    public void substract(Vector3fExt vec) {
         for (int i = 0; i < 3; i++) {
-            coords[i] -= svr.getCoord(i);
+            coords[i] -= vec.getCoord(i);
         }
     }
 
@@ -370,16 +369,16 @@ public class Vector3fExt {
         return coords[0] * coords[0] + coords[1] * coords[1] + coords[2] * coords[2];
     }
 
-    public static float vectorAbs(float[] svr) {
-        return (float) sqrt(svr[0] * svr[0] + svr[1] * svr[1] + svr[2] * svr[2]);
+    public static float vectorAbs(float[] vec) {
+        return (float) sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
     }
 
     public static float vectorAbs(float x, float y, float z) {
         return (float) sqrt(x * x + y * y + z * z);
     }
 
-    public static float vectorAbs(Vector3fExt svr) {
-        return (float) sqrt(svr.getX() * svr.getX() + svr.getY() * svr.getY() + svr.getZ() * svr.getZ());
+    public static float vectorAbs(Vector3fExt vec) {
+        return (float) sqrt(vec.getX() * vec.getX() + vec.getY() * vec.getY() + vec.getZ() * vec.getZ());
     }
 
     public float getPolarAngle(Vector3fExt zAxis) {
@@ -477,32 +476,32 @@ public class Vector3fExt {
         this.add(rPN.getMultipliedBy(-2f * nComp));
     }
 
-    public static Vector3fExt multiply(Vector3fExt svr, float sc) {
+    public static Vector3fExt multiply(Vector3fExt vec, float sc) {
         final Vector3fExt rvr = new Vector3fExt();
         for (int i = 0; i < 3; i++) {
-            rvr.setCoord(i, sc * svr.getCoord(i));
+            rvr.setCoord(i, sc * vec.getCoord(i));
         }
         return rvr;
     }
 
-    public static Vector3fExt multiply(Vector3fExt svr, Matrix4f multMatrix) {
-        final Vector3fExt rvr = new Vector3fExt(svr);
+    public static Vector3fExt multiply(Vector3fExt vec, Matrix4f multMatrix) {
+        final Vector3fExt rvr = new Vector3fExt(vec);
         rvr.multiplyBy(multMatrix);
         return rvr;
     }
 
-    public static Vector3fExt add(Vector3fExt svr1, Vector3fExt svr2) {
+    public static Vector3fExt add(Vector3fExt vec1, Vector3fExt vec2) {
         final Vector3fExt rvr = new Vector3fExt();
         for (int i = 0; i < 3; i++) {
-            rvr.setCoord(i, svr1.getCoord(i) + svr2.getCoord(i));
+            rvr.setCoord(i, vec1.getCoord(i) + vec2.getCoord(i));
         }
         return rvr;
     }
 
-    public static Vector3fExt add(Vector3fExt svr1, Vector3fExt svr2, Vector3fExt svr3) {
+    public static Vector3fExt add(Vector3fExt vec1, Vector3fExt vec2, Vector3fExt vec3) {
         final Vector3fExt rvr = new Vector3fExt();
         for (int i = 0; i < 3; i++) {
-            rvr.setCoord(i, svr1.getCoord(i) + svr2.getCoord(i) + svr3.getCoord(i));
+            rvr.setCoord(i, vec1.getCoord(i) + vec2.getCoord(i) + vec3.getCoord(i));
         }
         return rvr;
     }
@@ -515,18 +514,18 @@ public class Vector3fExt {
         return sumVr;
     }
 
-    public static Vector3fExt sum(Vector3fExt svr1, Vector3fExt svr2, Vector3fExt svr3) {
+    public static Vector3fExt sum(Vector3fExt vec1, Vector3fExt vec2, Vector3fExt vec3) {
         final Vector3fExt sumVr = new Vector3fExt();
-        sumVr.add(svr1);
-        sumVr.add(svr2);
-        sumVr.add(svr3);
+        sumVr.add(vec1);
+        sumVr.add(vec2);
+        sumVr.add(vec3);
         return sumVr;
     }
 
-    public static Vector3fExt substract(Vector3fExt svr1, Vector3fExt svr2) {
+    public static Vector3fExt substract(Vector3fExt vec1, Vector3fExt vec2) {
         final Vector3fExt rvr = new Vector3fExt();
         for (int i = 0; i < 3; i++) {
-            rvr.setCoord(i, svr1.getCoord(i) - svr2.getCoord(i));
+            rvr.setCoord(i, vec1.getCoord(i) - vec2.getCoord(i));
         }
         return rvr;
     }
@@ -539,73 +538,73 @@ public class Vector3fExt {
         return rvr;
     }
 
-    public static float dotProduct(Vector3fExt svr1, Vector3fExt svr2) {
-        return svr1.getX() * svr2.getX() + svr1.getY() * svr2.getY() + svr1.getZ() * svr2.getZ();
+    public static float dotProduct(Vector3fExt vec1, Vector3fExt vec2) {
+        return vec1.getX() * vec2.getX() + vec1.getY() * vec2.getY() + vec1.getZ() * vec2.getZ();
     }
 
-    public float getDotProductWith(Vector3fExt svr2) {
-        return coords[0] * svr2.getX() + coords[1] * svr2.getY() + coords[2] * svr2.getZ();
+    public float getDotProductWith(Vector3fExt vec2) {
+        return coords[0] * vec2.getX() + coords[1] * vec2.getY() + coords[2] * vec2.getZ();
     }
 
-    public static Vector3fExt crossProduct(Vector3fExt svr1, Vector3fExt svr2) {
-        final Vector3fExt resVr = new Vector3fExt();
-        resVr.setX(svr1.getY() * svr2.getZ() - svr1.getZ() * svr2.getY());
-        resVr.setY(-svr1.getX() * svr2.getZ() + svr1.getZ() * svr2.getX());
-        resVr.setZ(svr1.getX() * svr2.getY() - svr1.getY() * svr2.getX());
-        return resVr;
+    public static Vector3fExt crossProduct(Vector3fExt vec1, Vector3fExt vec2) {
+        final Vector3fExt resVec = new Vector3fExt();
+        resVec.setX(vec1.getY() * vec2.getZ() - vec1.getZ() * vec2.getY());
+        resVec.setY(-vec1.getX() * vec2.getZ() + vec1.getZ() * vec2.getX());
+        resVec.setZ(vec1.getX() * vec2.getY() - vec1.getY() * vec2.getX());
+        return resVec;
     }
 
-    public Vector3fExt getCrossProductWith(Vector3fExt svr2) {
-        final Vector3fExt resVr = new Vector3fExt();
-        resVr.setX(coords[1] * svr2.getZ() - coords[2] * svr2.getY());
-        resVr.setY(-coords[0] * svr2.getZ() + coords[2] * svr2.getX());
-        resVr.setZ(coords[0] * svr2.getY() - coords[1] * svr2.getX());
-        return resVr;
+    public Vector3fExt getCrossProductWith(Vector3fExt vec2) {
+        final Vector3fExt resVec = new Vector3fExt();
+        resVec.setX(coords[1] * vec2.getZ() - coords[2] * vec2.getY());
+        resVec.setY(-coords[0] * vec2.getZ() + coords[2] * vec2.getX());
+        resVec.setZ(coords[0] * vec2.getY() - coords[1] * vec2.getX());
+        return resVec;
     }
 
-    public static float mixedProduct(Vector3fExt svr1, Vector3fExt svr2, Vector3fExt svr3) {
-        return Vector3fExt.dotProduct(svr1, Vector3fExt.crossProduct(svr2, svr3));
+    public static float mixedProduct(Vector3fExt vec1, Vector3fExt vec2, Vector3fExt vec3) {
+        return Vector3fExt.dotProduct(vec1, Vector3fExt.crossProduct(vec2, vec3));
     }
 
-    public static Vector3fExt reverseDirection(Vector3fExt svr) {
-        return new Vector3fExt(Vector3fExt.multiply(svr, -1));
+    public static Vector3fExt reverseDirection(Vector3fExt vec) {
+        return new Vector3fExt(Vector3fExt.multiply(vec, -1));
     }
 
-    public static Vector3fExt normalize(Vector3fExt svr) {
-        final Vector3fExt nvr = new Vector3fExt(svr);
+    public static Vector3fExt normalize(Vector3fExt vec) {
+        final Vector3fExt nvr = new Vector3fExt(vec);
         nvr.normalize();
         return nvr;
     }
 
-    public static float absoluteDistance(Vector3fExt svr1, Vector3fExt svr2) {
-        return vectorAbs(Vector3fExt.substract(svr1, svr2));
+    public static float absoluteDistance(Vector3fExt vec1, Vector3fExt vec2) {
+        return vectorAbs(Vector3fExt.substract(vec1, vec2));
     }
 
-    public static float absoluteDistanceSquare(Vector3fExt svr1, Vector3fExt svr2) {
-        return Vector3fExt.substract(svr1, svr2).getLengthSquare();
+    public static float absoluteDistanceSquare(Vector3fExt vec1, Vector3fExt vec2) {
+        return Vector3fExt.substract(vec1, vec2).getLengthSquare();
     }
 
     public static float absoluteDistance(Object3d o1, Object3d o2) {
         return vectorAbs(Vector3fExt.substract(o1.getPosition(), o2.getPosition()));
     }
 
-    public static Vector3fExt average(Vector3fExt svr1, Vector3fExt svr2) {
-        return new Vector3fExt(0.5f * (svr1.getX() + svr2.getX()), 0.5f * (svr1.getY() + svr2.getY()),
-                0.5f * (svr1.getZ() + svr2.getZ()));
+    public static Vector3fExt average(Vector3fExt vec1, Vector3fExt vec2) {
+        return new Vector3fExt(0.5f * (vec1.getX() + vec2.getX()), 0.5f * (vec1.getY() + vec2.getY()),
+                0.5f * (vec1.getZ() + vec2.getZ()));
     }
 
-    public static Vector3fExt average(Vector3fExt svr1, Vector3fExt svr2, Vector3fExt svr3) {
-        return Vector3fExt.sum(svr1, svr2, svr3).getMultipliedBy(1f / 3f);
+    public static Vector3fExt average(Vector3fExt vec1, Vector3fExt vec2, Vector3fExt vec3) {
+        return Vector3fExt.sum(vec1, vec2, vec3).getMultipliedBy(1f / 3f);
     }
 
-    public static Vector3fExt average(Vector3fExt svr1, Vector3fExt svr2, Vector3fExt svr3, Vector3fExt svr4) {
-        return Vector3fExt.sum(svr1, svr2, svr3).getSumWith(svr4).getMultipliedBy(0.25f);
+    public static Vector3fExt average(Vector3fExt vec1, Vector3fExt vec2, Vector3fExt vec3, Vector3fExt vec4) {
+        return Vector3fExt.sum(vec1, vec2, vec3).getSumWith(vec4).getMultipliedBy(0.25f);
     }
 
-    public static Vector3fExt average(List<Vector3fExt> svrs) {
-        if (svrs.size() == 0) return (new Vector3fExt());
-        final Vector3fExt avVr = sum(svrs);
-        avVr.divideAbs((float) svrs.size());
+    public static Vector3fExt average(List<Vector3fExt> vecs) {
+        if (vecs.size() == 0) return (new Vector3fExt());
+        final Vector3fExt avVr = sum(vecs);
+        avVr.divideAbs((float) vecs.size());
         return avVr;
     }
 
@@ -623,10 +622,10 @@ public class Vector3fExt {
         }
     }
 
-    public static void normalize(float[] svr) {
-        final float va = vectorAbs(svr);
+    public static void normalize(float[] vec) {
+        final float va = vectorAbs(vec);
         for (int i = 0; i < 3; i++) {
-            svr[i] /= va;
+            vec[i] /= va;
         }
     }
 

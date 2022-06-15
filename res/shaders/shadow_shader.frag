@@ -6,5 +6,5 @@ in vec2 pass_TexCoord;
 out vec4 out_Color;
 
 void main(void) {
-	out_Color = vec4(0.0, 0.0, 0.0, 0.6);
+	out_Color = vec4(0.0, 0.0, 0.0, 0.8);
 }

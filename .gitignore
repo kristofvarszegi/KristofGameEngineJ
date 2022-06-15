@@ -1,4 +1,5 @@
 .idea
+*.png
 
 target/
 pom.xml.tag

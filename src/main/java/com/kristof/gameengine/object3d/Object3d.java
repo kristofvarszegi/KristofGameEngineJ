@@ -283,7 +283,7 @@ public abstract class Object3d {
         force.add(plusForce);
     }
 
-    public void addMediumForce(float viscosity) {
+    public void addDragForce(float viscosity) {
         force.add(velocity.getMultipliedBy(-viscosity));
     }
 

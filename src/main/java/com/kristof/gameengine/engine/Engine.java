@@ -106,6 +106,7 @@ public class Engine {
     private final Vector3fExt eyePosition;
     private Vector3fExt eyePosTemp;
     private Vector3fExt lightPosition;
+    private Vector3fExt prevLightPosition;
 
     // UI fields
     private long window;
@@ -146,6 +147,7 @@ public class Engine {
         eyePosition = new Vector3fExt(0, 0, 0);
         eyePosTemp = new Vector3fExt(0, 0, 0);
         lightPosition = new Vector3fExt();
+        prevLightPosition = new Vector3fExt();
         lookDirection = new Vector3fExt(0, 0, -1f);
         rightDirection = new Vector3fExt(1f, 0, 0);
         upVector = Vector3fExt.Y_UNIT_VECTOR;
@@ -438,33 +440,39 @@ public class Engine {
     }
 
     private void loadBuiltInTextures() {    // TODO from config
-        colorMapIndices.put(TEXTURE_ASSET_KEYS.BLUE,
-                loadPNGTexture("res/textures/blue_normalmap.png", GL_TEXTURE0 + COLORMAP_TEXTURE_UNIT));
+        final int colorMapTextureUnit = GL_TEXTURE0 + COLORMAP_TEXTURE_UNIT;
+        colorMapIndices.put(TEXTURE_ASSET_KEYS.WHITE,
+                loadPNGTexture("res/textures/white_colormap.png", colorMapTextureUnit));
         colorMapIndices.put(TEXTURE_ASSET_KEYS.BROKEN,
-                loadPNGTexture("res/textures/ft_broken01_c.png", GL_TEXTURE0 + COLORMAP_TEXTURE_UNIT));
+                loadPNGTexture("res/textures/ft_broken01_c.png", colorMapTextureUnit));
         colorMapIndices.put(TEXTURE_ASSET_KEYS.SPACE_CLOUDS,
-                loadPNGTexture("res/textures/spaceclouds_colormap.png", GL_TEXTURE0 + COLORMAP_TEXTURE_UNIT));
+                loadPNGTexture("res/textures/spaceclouds_colormap.png", colorMapTextureUnit));
         colorMapIndices.put(TEXTURE_ASSET_KEYS.DIAGONAL,
-                loadPNGTexture("res/textures/ft_diagonal01_c.png", GL_TEXTURE0 + COLORMAP_TEXTURE_UNIT));
+                loadPNGTexture("res/textures/ft_diagonal01_c.png", colorMapTextureUnit));
         colorMapIndices.put(TEXTURE_ASSET_KEYS.MANHOLE,
-                loadPNGTexture("res/textures/manhole_256x256_colormap.png", GL_TEXTURE0 + COLORMAP_TEXTURE_UNIT));
+                loadPNGTexture("res/textures/manhole_256x256_colormap.png", colorMapTextureUnit));
         colorMapIndices.put(TEXTURE_ASSET_KEYS.MTL_FLOOR02,
-                loadPNGTexture("res/textures/mtl_floor02_c.png", GL_TEXTURE0 + COLORMAP_TEXTURE_UNIT));
+                loadPNGTexture("res/textures/mtl_floor02_c.png", colorMapTextureUnit));
         colorMapIndices.put(TEXTURE_ASSET_KEYS.MTL_TRIM01,
-                loadPNGTexture("res/textures/mtl_trim01_c.png", GL_TEXTURE0 + COLORMAP_TEXTURE_UNIT));
+                loadPNGTexture("res/textures/mtl_trim01_c.png", colorMapTextureUnit));
+        colorMapIndices.put(TEXTURE_ASSET_KEYS.REDBRICK,
+                loadPNGTexture("res/textures/redbrick01_c.png", colorMapTextureUnit));
 
-        normalMapIndices.put(TEXTURE_ASSET_KEYS.BROKEN,
-                loadPNGTexture("res/textures/ft_broken01_n.png", GL_TEXTURE0 + COLORMAP_TEXTURE_UNIT));
+        final int normalMapTextureUnit = GL_TEXTURE0 + NORMALMAP_TEXTURE_UNIT;
         normalMapIndices.put(TEXTURE_ASSET_KEYS.BLUE,
-                loadPNGTexture("res/textures/blue_normalmap.png", GL_TEXTURE0 + COLORMAP_TEXTURE_UNIT));
+                loadPNGTexture("res/textures/blue_normalmap.png", normalMapTextureUnit));
+        normalMapIndices.put(TEXTURE_ASSET_KEYS.BROKEN,
+                loadPNGTexture("res/textures/ft_broken01_n.png", normalMapTextureUnit));
         normalMapIndices.put(TEXTURE_ASSET_KEYS.DIAGONAL,
-                loadPNGTexture("res/textures/ft_diagonal01_n.png", GL_TEXTURE0 + COLORMAP_TEXTURE_UNIT));
+                loadPNGTexture("res/textures/ft_diagonal01_n.png", normalMapTextureUnit));
         normalMapIndices.put(TEXTURE_ASSET_KEYS.MANHOLE,
-                loadPNGTexture("res/textures/manhole_256x256_normalmap.png", GL_TEXTURE0 + NORMALMAP_TEXTURE_UNIT));
+                loadPNGTexture("res/textures/manhole_256x256_normalmap.png", normalMapTextureUnit));
         normalMapIndices.put(TEXTURE_ASSET_KEYS.MTL_FLOOR02,
-                loadPNGTexture("res/textures/mtl_floor02_n.png", GL_TEXTURE0 + NORMALMAP_TEXTURE_UNIT));
+                loadPNGTexture("res/textures/mtl_floor02_n.png", normalMapTextureUnit));
         normalMapIndices.put(TEXTURE_ASSET_KEYS.MTL_TRIM01,
-                loadPNGTexture("res/textures/mtl_trim01_n.png", GL_TEXTURE0 + NORMALMAP_TEXTURE_UNIT));
+                loadPNGTexture("res/textures/mtl_trim01_n.png", normalMapTextureUnit));
+        normalMapIndices.put(TEXTURE_ASSET_KEYS.REDBRICK,
+                loadPNGTexture("res/textures/redbrick01_n.png", normalMapTextureUnit));
     }
 
     private int loadPNGTexture(String filename, int textureUnit) {
@@ -668,9 +676,10 @@ public class Engine {
                 colorMapIndices.get(TEXTURE_ASSET_KEYS.MANHOLE), normalMapIndices.get(TEXTURE_ASSET_KEYS.MANHOLE),
                 0.5f, 0.5f, 0.5f);*/
         avatar = Object3dFactory.createSphere(new Vector3fExt(0, 4f, 0), 0, 0,
-                0, Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.BLUE, Material.PEARL,
-                colorMapIndices.get(TEXTURE_ASSET_KEYS.MTL_TRIM01),
-                normalMapIndices.get(TEXTURE_ASSET_KEYS.MTL_TRIM01), 0.4f);
+                0, Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.BLUE, Material.EMISSIVE,
+                colorMapIndices.get(TEXTURE_ASSET_KEYS.WHITE),
+                normalMapIndices.get(TEXTURE_ASSET_KEYS.BLUE), 0.2f);
+        avatar.setShadowEnabled(false);
 
         /*final float childObjectSize = 0.3f;
         avatar.addChildObject(new Cuboid(new Vector3fExt(-2f, 0, 0), 0, 0,
@@ -690,7 +699,7 @@ public class Engine {
                 Material.CHROME, colorMapIndices.get(TEXTURE_ASSET_KEYS.MANHOLE),
                 normalMapIndices.get(TEXTURE_ASSET_KEYS.MANHOLE), childObjectSize, childObjectSize, childObjectSize));*/
 
-        staticObjects.add(Object3dFactory.createHeightMapSeamless(new Vector3fExt(0, -5f, 0),
+        staticObjects.add(Object3dFactory.createHeightMapSeamless(new Vector3fExt(0, 0, 0),
                 0, 0, 0, Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR,
                 ColorVector.BLUE, Material.PEARL, colorMapIndices.get(TEXTURE_ASSET_KEYS.BROKEN),
                 normalMapIndices.get(TEXTURE_ASSET_KEYS.BROKEN), 40f, 40f, 1f));
@@ -698,6 +707,16 @@ public class Engine {
                 0, (float) Math.toRadians(45), Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR,
                 ColorVector.BLUE, Material.PEARL, colorMapIndices.get(TEXTURE_ASSET_KEYS.DIAGONAL),
                 normalMapIndices.get(TEXTURE_ASSET_KEYS.DIAGONAL), 100f, 100f, false));*/
+
+        final int floatingRectCount = 5;
+        for (int i = 0; i < floatingRectCount; i++) {
+            staticObjects.add(Object3dFactory.createRectangle(
+                    new Vector3fExt(-1f, 0.7f, 2f + i * (-2f)),
+                    (float) Math.toRadians(60.), (float) Math.toRadians(-20. - 5. * Math.random()), (float) Math.toRadians(90.),
+                    Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.BLUE, Material.SILVER,
+                    colorMapIndices.get(TEXTURE_ASSET_KEYS.MTL_FLOOR02),
+                    normalMapIndices.get(TEXTURE_ASSET_KEYS.MTL_FLOOR02), 1.5f, 1.5f, false));
+        }
 
         // 3D cube grid TODO from level assets
         /*final int n = 3;
@@ -720,16 +739,16 @@ public class Engine {
         }*/
 
         // Spheres
-        final int n = 5;  // TODO from level assets
+        final int inertSphereCount = 5;  // TODO from level assets
         final float d = 4f;
         final float h = 2f;
         float r;
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < inertSphereCount; i++) {
             r = 0.2f + (float) (0.3f * Math.random());
             inertObjects.add(Object3dFactory.createSphere(
                     Vector3fExt.randomVector(0.01f).getSumWith(i * d, h, i * d),
                     0, (float) Math.toRadians(120), 0, Vector3fExt.NULL_VECTOR,
-                    Vector3fExt.NULL_VECTOR, ColorVector.BLUE, Material.SILVER,
+                    Vector3fExt.NULL_VECTOR, ColorVector.BLUE, Material.SHINY,
                     colorMapIndices.get(TEXTURE_ASSET_KEYS.MTL_TRIM01),
                     normalMapIndices.get(TEXTURE_ASSET_KEYS.MTL_TRIM01), r));
         }
@@ -802,6 +821,11 @@ public class Engine {
             isVTargetSet = true;
             inputHistory.add(new InputHistoryElement(InputHistoryElement.KEY_FWD, newLoopStartTime));
         }
+        if (InputHandler.isKeyDown(GLFW_KEY_A)) {
+            velocityTarget.add(rightDirection.getMultipliedBy(-SIDE_CONTROL_V));
+            isVTargetSet = true;
+            inputHistory.add(new InputHistoryElement(InputHistoryElement.KEY_LEFT, newLoopStartTime));
+        }
         if (InputHandler.isKeyDown(GLFW_KEY_S)) {
             velocityTarget.add(lookDirection.getMultipliedBy(-FWD_CONTROL_V));
             isVTargetSet = true;
@@ -812,20 +836,19 @@ public class Engine {
             isVTargetSet = true;
             inputHistory.add(new InputHistoryElement(InputHistoryElement.KEY_RIGHT, newLoopStartTime));
         }
-        if (InputHandler.isKeyDown(GLFW_KEY_A)) {
-            velocityTarget.add(rightDirection.getMultipliedBy(-SIDE_CONTROL_V));
-            isVTargetSet = true;
-            inputHistory.add(new InputHistoryElement(InputHistoryElement.KEY_LEFT, newLoopStartTime));
-        }
         if (InputHandler.isKeyDown(GLFW_KEY_SPACE)) {
             velocityTarget.add(upVector.getMultipliedBy(VERT_CONTROL_V));
             isVTargetSet = true;
             inputHistory.add(new InputHistoryElement(InputHistoryElement.KEY_SPACE, newLoopStartTime));
         }
-
         if (InputHandler.isKeyDown(GLFW_KEY_C)) {
             velocityTarget.add(upVector.getMultipliedBy(-VERT_CONTROL_V));
             isVTargetSet = true;
+        }
+        if (InputHandler.isKeyDown(GLFW_KEY_X)) {
+            velocityTarget.reset();
+            isVTargetSet = true;
+            avatar.setVelocity(Vector3fExt.NULL_VECTOR);
         }
         /*if (InputHandler.isKeyDown(GLFW_KEY_R)) { // TODO fit to speed-based pos updating
             avatar.setPosition(RESET_POSITION);
@@ -897,10 +920,14 @@ public class Engine {
         avatar.resetForce();
         if (isVTargetSet) avatar.addVDriveForce(velocityTarget, V_DRIVE_FACTOR);
         if (isDashTargetSet) avatar.addSpringForce(dashTarget, Object3d.DEFAULT_STIFFNESS);
-        avatar.addForce(dashTarget.getThisMinus(avatar.getPosition()).getWithLength(1000000000000000f));
-        if (config.isGravityOn) avatar.addForce(new Vector3fExt(0,
-                -Object3d.GRAVITY_ACCEL_EARTH * avatar.getMass(), 0));
-        avatar.addMediumForce(Object3d.DEFAULT_VISCOSITY);
+        //avatar.addForce(dashTarget.getThisMinus(avatar.getPosition()).getWithLength(1000000000000000f));
+        if (config.isGravityOn) {
+            avatar.addForce(new Vector3fExt(0,
+                    -Object3d.GRAVITY_ACCEL_EARTH * avatar.getMass(), 0));
+        }
+        if (config.isDragEnabled) {
+            avatar.addDragForce(Object3d.DEFAULT_VISCOSITY);
+        }
 
         // Apply collision between inert objects
         for (int i = 0; i < inertObjects.size(); i++) {
@@ -919,25 +946,28 @@ public class Engine {
             avatar.addCollisionForceBy(inertObject);
         }
 
+        // TODO from scene description
+        prevLightPosition = lightPosition;
         //lightPosition = Vector3fExt.rotatingVectorXZ(0.0000000006f * System.nanoTime(), 30f, new Vector3fExt(0, 40f, 0));
-        lightPosition = new Vector3fExt(0f, 100f, 0f);    // TODO from scene description
-        //lightPosition = avatar.getPosition();
+        //lightPosition = new Vector3fExt(0f, 100f, 0f);
+        lightPosition = avatar.getPosition();
 
         for (final Object3d inertObject : inertObjects) {
             inertObject.resetForce();
-
-            if (config.isGravityOn)
-                inertObject.addForce(new Vector3fExt(0, -Object3d.GRAVITY_ACCEL_EARTH * inertObject.getMass(), 0));
-
+            if (config.isGravityOn) {
+                inertObject.addForce(new Vector3fExt(0,
+                        -Object3d.GRAVITY_ACCEL_EARTH * inertObject.getMass(), 0));
+            }
             for (final Object3d staticObject : staticObjects) {
                 inertObject.addCollisionForceBy(staticObject);
             }
-
             inertObject.addCollisionForceBy(avatar);    // TODO make counter-forces in one round
 
             if (InputHandler.isKeyDown(GLFW_KEY_G)) {
                 inertObject.addSpringForce(avatar.getPosition(), Object3d.DEFAULT_STIFFNESS);
-                inertObject.addMediumForce(Object3d.DEFAULT_VISCOSITY);
+                if (config.isDragEnabled) {
+                    inertObject.addDragForce(Object3d.DEFAULT_VISCOSITY);
+                }
                 if (config.isAvatarPowerGravityPullEnabled) {
                     inertObject.addGravitationalForce(avatar.getPosition(), avatar.getMass());
                 }
@@ -949,7 +979,7 @@ public class Engine {
         final Vector3fExt dashVr = isDashTargetSet ? lookDirection.getWithLength(DASH_DISTANCE) : Vector3fExt.NULL_VECTOR;
         skyBox.setPosition(eyePosition);
         skyBox.calculateModelMatrix();
-        avatar.update(dashVr);  // TODO add collision
+        avatar.update(dashVr);  // TODO add collision when dashing
         for (final Object3d staticObject : staticObjects) {
             staticObject.update(Vector3fExt.NULL_VECTOR);    //new Matrix4f());
         }
@@ -987,6 +1017,8 @@ public class Engine {
     private void render() {
         switch (config.renderMode) {
             case RAY_TRACING -> {
+                lightPosition = new Vector3fExt(0f, 100f, 0f);  // TODO fix for light source within object
+
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 glUseProgram(rayTracingProgramIndex);
                 glUniform3f(rayTracingUniformIndices[U_EYEPOSITION_MAP], eyePosTemp.getX(), eyePosTemp.getY(), eyePosTemp.getZ());
@@ -1148,12 +1180,12 @@ public class Engine {
 
     private void renderShadowVolumes(int[] uniformIndices, Matrix4f vMatrix, Matrix4f pMatrix, Vector3fExt lightParam,
                                      ShadowVolume.LIGHT_PARAM_TYPE lightType) {
-        if (staticShadowVolumeBO == null) {
-            final ShadowVolume staticShadowVolumeData = new ShadowVolume(lightParam, lightType);
+        if (staticShadowVolumeBO == null || !lightPosition.equals(prevLightPosition)) {
+            final ShadowVolume staticShadowVolume = new ShadowVolume(lightParam, lightType);
             for (final Object3d staticObject : staticObjects) {
-                staticShadowVolumeData.addData(staticObject.getShadowVertices(lightParam, lightType));
+                staticShadowVolume.addData(staticObject.getShadowVertices(lightParam, lightType));
             }
-            staticShadowVolumeBO = new ShadowVolumeBO(staticShadowVolumeData);
+            staticShadowVolumeBO = new ShadowVolumeBO(staticShadowVolume);
         }
         staticShadowVolumeBO.render(uniformIndices, vMatrix, pMatrix, Object3dFactory.createDummyObject3d());
 
