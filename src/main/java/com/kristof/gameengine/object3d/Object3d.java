@@ -10,6 +10,7 @@ import com.kristof.gameengine.shadow.ShadowVolume;
 import com.kristof.gameengine.shadow.ShadowVolumeBO;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.Vector;
 
 import static com.kristof.gameengine.engine.MiscConstants.FORCED_FPS;
@@ -31,7 +32,7 @@ public abstract class Object3d {
     public static final float COLLISION_V_TRIM_SQ = COLLISION_V_TRIM * COLLISION_V_TRIM;
     public static final float COLLISION_VISCOSITY = 2 * 10000000000000000f;
 
-    public enum PROTOTYPE_NAMES {CUBOID, H_MAP_S, HAND, SKYBOX, SPHERE, SCREENQUAD, OBJ_TEST, OBJ_BLOB}
+    protected final UUID id;
 
     protected Vector3fExt position;
     protected Vector3fExt velocity;
@@ -73,6 +74,8 @@ public abstract class Object3d {
 
     private Object3d(Vector3fExt position, Vector3fExt scale, Vector3fExt velocity, Vector3fExt force,
                      ColorVector color, Material material, int colorMapTexIndex, int normalMapTexIndex) {
+        id = UUID.randomUUID();
+
         this.position = position;
         this.velocity = velocity;
         this.force = force;
@@ -126,6 +129,8 @@ public abstract class Object3d {
         this(position, scale, velocity, force, color, material, colorMapTexIndex, normalMapTexIndex);
         Matrix4f.mul(rotationMatrix, this.rotationMatrix, this.rotationMatrix);
     }
+
+    public UUID getId() { return id; }
 
     public int getColorMapTexIndex() {
         return colorMapTexIndex;
@@ -237,6 +242,11 @@ public abstract class Object3d {
         return prevModelMatrix;
     }
 
+    @Override
+    public boolean equals(Object theOther) {
+        return theOther instanceof Object3d && id == ((Object3d) theOther).getId();
+    }
+
     public void calculateModelMatrix() {
         prevModelMatrix = new Matrix4f(modelMatrix);
         modelMatrix = new Matrix4f();
@@ -274,9 +284,8 @@ public abstract class Object3d {
     public void render(int[] programUniformIndices, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
         exitOnGLError("in " + this.getClass().getSimpleName() + " at getting object BO");
         getGlBufferObject().render(programUniformIndices, viewMatrix, projectionMatrix, this);
-        for (final Object3d childObject : childObjects) {
-            childObject.render(programUniformIndices, viewMatrix, projectionMatrix);
-        }
+        childObjects.forEach((final Object3d childObject) -> childObject.render(programUniformIndices, viewMatrix,
+                projectionMatrix));
     }
 
     public void addForce(Vector3fExt plusForce) {
@@ -403,20 +412,18 @@ public abstract class Object3d {
 
         // Update child objects
         this.addChildSpringForce();
-        for (final Object3d childObject : childObjects) {
-            childObject.update(Vector3fExt.NULL_VECTOR);
-        }
+        childObjects.forEach((final Object3d childObject) -> childObject.update(Vector3fExt.NULL_VECTOR));
     }
 
     public void addChildSpringForce() {
-        for (final Object3d childObject : childObjects) {
+        childObjects.forEach((final Object3d childObject) -> {
             final Vector3fExt relPos = childObject.getPosition();
             final Matrix4f tempRMx = new Matrix4f();
             tempRMx.rotate(Vector3fExt.Z_UNIT_VECTOR.getReverse().getAngleWith(velocity),
                     Vector3fExt.Z_UNIT_VECTOR.getReverse().getCrossProductWith(velocity).getNormalized().getAsVector3f());
             relPos.multiplyBy(tempRMx);
             childObject.addDampedSpringForce(position.getSumWith(relPos), CHILD_STIFFNESS, CHILD_VISCOSITY);
-        }
+        });
     }
 
     public void renderDynamicShadow(int[] programUniformIndices, Matrix4f viewMatrix, Matrix4f projectionMatrix,
@@ -429,16 +436,13 @@ public abstract class Object3d {
                     position, lightPos, ShadowVolume.LIGHT_PARAM_TYPE.LIGHT_DIRECTION));
             shadowVolumeBO.render(programUniformIndices, viewMatrix, projectionMatrix, new DummyObject3d());
         }
-        for (final Object3d childObject : childObjects) {
-            childObject.renderDynamicShadow(programUniformIndices, viewMatrix, projectionMatrix, lightPos);
-        }
+        childObjects.forEach((final Object3d childObject) -> childObject.renderDynamicShadow(programUniformIndices,
+                viewMatrix, projectionMatrix, lightPos));
     }
 
     public void destroyShadowVolume() {
         if (shadowVolumeBO != null) shadowVolumeBO.destroy();
-        for (final Object3d childObject : childObjects) {
-            childObject.destroyShadowVolume();
-        }
+        childObjects.forEach(Object3d::destroyShadowVolume);
     }
 
     /**

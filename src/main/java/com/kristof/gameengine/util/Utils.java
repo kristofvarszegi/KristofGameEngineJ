@@ -210,8 +210,8 @@ public class Utils {
 
     public static void writeInputHistoryToFile(List<InputHistoryElement> inputHistory, String fileName) {
         try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
-            for (InputHistoryElement e : inputHistory) {
+            final BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
+            for (final InputHistoryElement e : inputHistory) {
                 out.write(e.getTimeStamp() + " " + e.getEventId());
                 out.newLine();
             }

@@ -7,14 +7,15 @@ import com.kristof.gameengine.util.Material;
 import com.kristof.gameengine.util.Matrix4f;
 import com.kristof.gameengine.util.Vector3fExt;
 
+import java.util.UUID;
+
 public abstract class Plate extends Object3d {
     public static float PLATE_THICKNESS = 0.0005f;
 
     protected Vector3fExt normal = Vector3fExt.Y_UNIT_VECTOR.getCopy();
     protected Vector3fExt right = Vector3fExt.X_UNIT_VECTOR.getCopy();
     protected Vector3fExt up = Vector3fExt.Z_UNIT_VECTOR.getReverse();
-    protected int id = -1;
-    protected int[] neighborIDs = new int[]{-1, -1, -1, -1};
+    protected UUID[] neighborIDs;
 
     public Plate(Vector3fExt position, float polarAngle, float azimuthAngle, float rollAngle, Vector3fExt scale,
                  Vector3fExt velocity, Vector3fExt force, ColorVector color, Material material, int colorMapTexIndex,
@@ -41,16 +42,8 @@ public abstract class Plate extends Object3d {
         return up.getCopy();
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public int[] getNeighborIDs() {
+    public UUID[] getNeighborIDs() {
         return neighborIDs;
-    }
-
-    public void setId(int newId) {
-        id = newId;
     }
 
     public void setNeighborIds(int[] newNeighborIds) {
@@ -58,13 +51,13 @@ public abstract class Plate extends Object3d {
         System.arraycopy(newNeighborIds, 0, neighborIDs, 0, maxL);
     }
 
-    public void setNeighborIds(int nId1, int nId2, int nId3) {
+    public void setNeighborIds(UUID nId1, UUID nId2, UUID nId3) {
         neighborIDs[0] = nId1;
         neighborIDs[1] = nId2;
         neighborIDs[2] = nId3;
     }
 
-    public void setNeighborIds(int nId1, int nId2, int nId3, int nId4) {
+    public void setNeighborIds(UUID nId1, UUID nId2, UUID nId3, UUID nId4) {
         neighborIDs[0] = nId1;
         neighborIDs[1] = nId2;
         neighborIDs[2] = nId3;
@@ -112,8 +105,8 @@ public abstract class Plate extends Object3d {
         return normal.getDotProductWith(inwardVector) < 0;
     }
 
-    public boolean isNeighbor(int possibleNeighborId) {
-        for (final int neighborID : neighborIDs) {
+    public boolean isNeighbor(UUID possibleNeighborId) {
+        for (final UUID neighborID : neighborIDs) {
             if (neighborID == possibleNeighborId) return true;
         }
         return false;

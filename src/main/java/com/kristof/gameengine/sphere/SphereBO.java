@@ -61,9 +61,7 @@ public class SphereBO extends ShortObject3dBO {
         positions.add(posTemp);
         texCoords.add(new float[]{0.5f, 1f});
         tangents.add(Vector3fExt.Z_UNIT_VECTOR);
-        for (final Vector3fExt position : positions) {
-            normals.add(position.getNormalized());
-        }
+        positions.forEach((final Vector3fExt position) -> normals.add(position.getNormalized()));
     }
 
     protected void fillIndices() {
@@ -96,11 +94,11 @@ public class SphereBO extends ShortObject3dBO {
 
         // Bottom cover - TRIANGLE_FAN
         for (int i = 0; i < (NUM_VERTICES_EW + 1); i++) {
-            indices.add((short) (vertexCount - (i + 1)));
+            indices.add((short) (positions.size() - (i + 1)));
         }
 
         // Last triangle vertex
-        indices.add((short) (vertexCount - 2));
+        indices.add((short) (positions.size() - 2));
     }
 
     @Override

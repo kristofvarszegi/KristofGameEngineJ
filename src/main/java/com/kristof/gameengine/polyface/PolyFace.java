@@ -8,14 +8,14 @@ import com.kristof.gameengine.triangle.Triangle;
 import com.kristof.gameengine.util.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.Vector;
 
 public class PolyFace extends Object3d {
     private final List<Vector3fExt> vertexPositions;
     private final Vector3fExt normal;
     private final List<Triangle> triangles;
-    private int id;
-    private int[] neighborIDs;
+    private UUID[] neighborIDs;
     private PolyFaceBO glBufferObject;
 
     /*
@@ -26,14 +26,13 @@ public class PolyFace extends Object3d {
      * 	ordered in CCW
      */
 
-    public PolyFace(int id, Vector3fExt vertex1, Vector3fExt vertex2, Vector3fExt vertex3, Vector3fExt vertex4,
+    public PolyFace(Vector3fExt vertex1, Vector3fExt vertex2, Vector3fExt vertex3, Vector3fExt vertex4,
                     int colorMapTexIndex, int normalMapTexIndex) {    // CCW if normal it is pointed to my eye
         super(Vector3fExt.NULL_VECTOR, 0, 0, 0, Vector3fExt.UNIT_VECTOR,
                 Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.MAGENTA, Material.PEARL, colorMapTexIndex,
                 normalMapTexIndex);
         vertexPositions = new Vector<>();
         triangles = new Vector<>();
-        this.id = id;
 
         // TODO check if vertex positions are in one common plane
         // TODO order vertices in ccw
@@ -58,28 +57,25 @@ public class PolyFace extends Object3d {
                 Vector3fExt.NULL_VECTOR, ColorVector.MAGENTA, Material.PEARL, -1, -1,
                 averagePos, vertex4, vertex1));
 
-        neighborIDs = new int[]{-1, -1, -1, -1};
+        neighborIDs = new UUID[vertexPositions.size()];
 
         glBufferObject = new PolyFaceBO(vertexPositions);
     }
 
-    public PolyFace(int id, List<Vector3fExt> verticesCCW, int colorMapTexIndex, int normalMapTexIndex) {    // CCW if normal it is pointed to my eye
+    public PolyFace(List<Vector3fExt> verticesCCW, int colorMapTexIndex, int normalMapTexIndex) {    // CCW if normal it is pointed to my eye
         super(Vector3fExt.NULL_VECTOR, 0, 0, 0, Vector3fExt.UNIT_VECTOR,
                 Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.MAGENTA, Material.PEARL, colorMapTexIndex,
                 normalMapTexIndex);
 
         vertexPositions = new Vector<>();
         triangles = new Vector<>();
-        this.id = id;
 
         // TODO check if vertexPositions are in one common plane
         // TODO order vertices in ccw
         normal = Vector3fExt.crossProduct(verticesCCW.get(1).getThisMinus(verticesCCW.get(0)),
                 verticesCCW.get(verticesCCW.size() - 1).getThisMinus(verticesCCW.get(0))).getNormalized();
         if (verticesCCW.size() > 2) {
-            for (final Vector3fExt vector3fExt : verticesCCW) {
-                vertexPositions.add(vector3fExt.getCopy());
-            }
+            verticesCCW.forEach((final Vector3fExt vector3fExt) -> vertexPositions.add(vector3fExt.getCopy()));
             final Vector3fExt averagePos = Vector3fExt.average(verticesCCW);
             for (int i = 0; i < verticesCCW.size() - 1; i++) {
                 triangles.add(new Triangle(0, 0, 0, Vector3fExt.NULL_VECTOR,
@@ -89,7 +85,7 @@ public class PolyFace extends Object3d {
             triangles.add(new Triangle(0, 0, 0, Vector3fExt.NULL_VECTOR,
                     Vector3fExt.NULL_VECTOR, ColorVector.MAGENTA, Material.PEARL, -1, -1,
                     averagePos, verticesCCW.get(verticesCCW.size() - 1), verticesCCW.get(0)));
-            neighborIDs = new int[vertexPositions.size()];
+            neighborIDs = new UUID[vertexPositions.size()];
             glBufferObject = new PolyFaceBO(vertexPositions);
         }
     }
@@ -98,7 +94,6 @@ public class PolyFace extends Object3d {
         super(Vector3fExt.average(pf2.getVertexPositions()), pf2.getRotationMatrix(), pf2.getScale(), pf2.getVelocity(),
                 pf2.getForce(), pf2.getColor(), pf2.getMaterial(), pf2.getColorMapTexIndex(),
                 pf2.getNormalMapTexIndex());
-        this.id = pf2.getId();
         vertexPositions = new Vector<>();
         for (int i = 0; i < pf2.getVertexPositionCount(); i++) {
             vertexPositions.add(pf2.getVertexPosition(i).getCopy());
@@ -108,7 +103,7 @@ public class PolyFace extends Object3d {
         for (int i = 0; i < pf2.getVertexPositionCount(); i++) {
             triangles.add(pf2.getTriangle(i).getCopy());
         }
-        neighborIDs = new int[pf2.getNeighborCount()];
+        neighborIDs = new UUID[pf2.getNeighborCount()];
         for (int i = 0; i < neighborIDs.length; i++) {
             neighborIDs[i] = pf2.getNeighborId(i);
         }
@@ -141,7 +136,7 @@ public class PolyFace extends Object3d {
 
     public float getMaxRadius() {
         float maxR = 0;
-        Vector3fExt center = Vector3fExt.average(vertexPositions);
+        final Vector3fExt center = Vector3fExt.average(vertexPositions);
         for (final Vector3fExt vertexPosition : vertexPositions) {
             if (vertexPosition.getThisMinus(center).getLengthSquare() > maxR * maxR) {
                 maxR = vertexPosition.getThisMinus(center).getLength();
@@ -150,30 +145,22 @@ public class PolyFace extends Object3d {
         return maxR;
     }
 
-    public void setId(int newId) {
-        id = newId;
-    }
-
-    public void setNeighborIds(int[] newNeighborIds) {
+    public void setNeighborIds(UUID[] newNeighborIds) {
         int maxL = Math.min(neighborIDs.length, newNeighborIds.length);
         System.arraycopy(newNeighborIds, 0, neighborIDs, 0, maxL);
     }
 
-    public void setNeighborIds(int nId1, int nId2, int nId3) {
+    public void setNeighborIds(UUID nId1, UUID nId2, UUID nId3) {
         neighborIDs[0] = nId1;
         neighborIDs[1] = nId2;
         neighborIDs[2] = nId3;
     }
 
-    public void setNeighborIds(int nId1, int nId2, int nId3, int nId4) {
+    public void setNeighborIds(UUID nId1, UUID nId2, UUID nId3, UUID nId4) {
         neighborIDs[0] = nId1;
         neighborIDs[1] = nId2;
         neighborIDs[2] = nId3;
         neighborIDs[3] = nId4;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public Vector3fExt getNormal() {
@@ -188,12 +175,8 @@ public class PolyFace extends Object3d {
         }
     }
 
-    public int getNeighborId(int index) {
-        if (index < neighborIDs.length) {
-            return neighborIDs[index];
-        } else {
-            return neighborIDs[0];
-        }
+    public UUID getNeighborId(int index) {
+        return index < neighborIDs.length ? neighborIDs[index] : neighborIDs[0];
     }
 
     public List<Vector3fExt> getVertexPositions() {
@@ -225,10 +208,9 @@ public class PolyFace extends Object3d {
 
     public PolyFace getScaled(float scale) {
         final List<Vector3fExt> scaledVertices = new Vector<>();
-        for (final Vector3fExt vertexPosition : vertexPositions) {
-            scaledVertices.add(vertexPosition.getMultipliedBy(scale));
-        }
-        PolyFace scaledFace = new PolyFace(id, scaledVertices, colorMapTexIndex, normalMapTexIndex);
+        vertexPositions.forEach((final Vector3fExt vertexPosition) -> scaledVertices.add(vertexPosition
+                .getMultipliedBy(scale)));
+        final PolyFace scaledFace = new PolyFace(scaledVertices, colorMapTexIndex, normalMapTexIndex);
         scaledFace.setNeighborIds(neighborIDs);
         return scaledFace;
     }
@@ -243,27 +225,21 @@ public class PolyFace extends Object3d {
         return normal.getDotProductWith(inwardVector) < 0;
     }
 
-    public boolean isNeighbor(int possibleNeighborId) {
-        for (final int neighborID : neighborIDs) {
+    public boolean isNeighbor(UUID possibleNeighborId) {
+        for (final UUID neighborID : neighborIDs) {
             if (neighborID == possibleNeighborId) return true;
         }
         return false;
     }
 
     public void translate(Vector3fExt transVr) {
-        for (final Vector3fExt vertexPosition : vertexPositions) {
-            vertexPosition.add(transVr);
-        }
+        vertexPositions.forEach((final Vector3fExt vertexPosition) -> vertexPosition.add(transVr));
     }
 
     public void transform(Matrix4f modelMatrix, Matrix4f rotationMatrix) {
-        for (final Vector3fExt vertexPosition : vertexPositions) {
-            vertexPosition.multiplyBy(modelMatrix);
-        }
+        vertexPositions.forEach((final Vector3fExt vertexPosition) -> vertexPosition.multiplyBy(modelMatrix));
         normal.multiplyBy(rotationMatrix);
-        for (final Triangle triangle : triangles) {
-            triangle.transform(modelMatrix, rotationMatrix);
-        }
+        triangles.forEach((final Triangle triangle) -> triangle.transform(modelMatrix, rotationMatrix));
     }
 
     @Override

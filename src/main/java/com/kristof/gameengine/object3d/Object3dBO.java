@@ -42,7 +42,6 @@ public abstract class Object3dBO {
 
     protected FloatBuffer matrix44Buffer;
     private float[] vertexAttribArray;
-    protected int vertexCount;
 
     protected Object3dBO() {
         positions = new Vector<>();
@@ -119,7 +118,7 @@ public abstract class Object3dBO {
     }
 
     private void toPositionArray(List<Vector3fExt> toSer) {
-        for (int i = 0; i < vertexCount; i++) {
+        for (int i = 0; i < positions.size(); i++) {
             vertexAttribArray[VertexConstants.STRIDE_IN_ELEMENTS_PNTT * i] = toSer.get(i).getX();
             vertexAttribArray[VertexConstants.STRIDE_IN_ELEMENTS_PNTT * i + 1] = toSer.get(i).getY();
             vertexAttribArray[VertexConstants.STRIDE_IN_ELEMENTS_PNTT * i + 2] = toSer.get(i).getZ();
@@ -127,7 +126,7 @@ public abstract class Object3dBO {
     }
 
     private void toNormalArray(List<Vector3fExt> toSer) {
-        for (int i = 0; i < vertexCount; i++) {
+        for (int i = 0; i < positions.size(); i++) {
             vertexAttribArray[VertexConstants.STRIDE_IN_ELEMENTS_PNTT * i + VertexConstants.POS_ELEMENT_NUM] = toSer.get(i).getX();
             vertexAttribArray[VertexConstants.STRIDE_IN_ELEMENTS_PNTT * i + VertexConstants.POS_ELEMENT_NUM + 1] = toSer.get(i).getY();
             vertexAttribArray[VertexConstants.STRIDE_IN_ELEMENTS_PNTT * i + VertexConstants.POS_ELEMENT_NUM + 2] = toSer.get(i).getZ();
@@ -135,14 +134,14 @@ public abstract class Object3dBO {
     }
 
     private void toTexCoordArray(List<float[]> toSer) {
-        for (int i = 0; i < vertexCount; i++) {
+        for (int i = 0; i < positions.size(); i++) {
             vertexAttribArray[VertexConstants.STRIDE_IN_ELEMENTS_PNTT * i + VertexConstants.POS_ELEMENT_NUM + VertexConstants.NOR_ELEMENT_NUM] = toSer.get(i)[0];
             vertexAttribArray[VertexConstants.STRIDE_IN_ELEMENTS_PNTT * i + VertexConstants.POS_ELEMENT_NUM + VertexConstants.NOR_ELEMENT_NUM + 1] = toSer.get(i)[1];
         }
     }
 
     private void toTangentArray(List<Vector3fExt> toSer) {
-        for (int i = 0; i < vertexCount; i++) {
+        for (int i = 0; i < positions.size(); i++) {
             vertexAttribArray[VertexConstants.STRIDE_IN_ELEMENTS_PNTT * i + VertexConstants.POS_ELEMENT_NUM + VertexConstants.NOR_ELEMENT_NUM + VertexConstants.TEX_ELEMENT_NUM] = toSer.get(i).getX();
             vertexAttribArray[VertexConstants.STRIDE_IN_ELEMENTS_PNTT * i + VertexConstants.POS_ELEMENT_NUM + VertexConstants.NOR_ELEMENT_NUM + VertexConstants.TEX_ELEMENT_NUM + 1] = toSer.get(i).getY();
             vertexAttribArray[VertexConstants.STRIDE_IN_ELEMENTS_PNTT * i + VertexConstants.POS_ELEMENT_NUM + VertexConstants.NOR_ELEMENT_NUM + VertexConstants.TEX_ELEMENT_NUM + 2] = toSer.get(i).getZ();
@@ -150,8 +149,7 @@ public abstract class Object3dBO {
     }
 
     protected void createAndFillVertexAttribArray() {
-        vertexCount = positions.size();
-        vertexAttribArray = new float[vertexCount * VertexConstants.STRIDE_IN_ELEMENTS_PNTT];
+        vertexAttribArray = new float[positions.size() * VertexConstants.STRIDE_IN_ELEMENTS_PNTT];
         toPositionArray(positions);
         toNormalArray(normals);
         toTexCoordArray(texCoords);

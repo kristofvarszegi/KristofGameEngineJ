@@ -95,9 +95,8 @@ public class ShadowVolumeBO extends ByteObject3dBO {
         final Vector3fExt zGap = Vector3fExt.substract(shadowVolume.getPosition(), lightParam)
                 .getNormalized().getMultipliedBy(GAP_SIZE);
         positions.add(Vector3fExt.average(rimVertexPositions).getSumWith(zGap));
-        for (final Vector3fExt rimVertexPosition : rimVertexPositions) {
-            positions.add(rimVertexPosition.getSumWith(zGap));
-        }
+        rimVertexPositions.forEach((final Vector3fExt rimVertexPosition) -> positions.add(
+                rimVertexPosition.getSumWith(zGap)));
 
         // Extrude silhouette vertices & center
         final Vector3fExt extrCVr = shadowVolume.getPosition().getSumWith(
@@ -157,26 +156,26 @@ public class ShadowVolumeBO extends ByteObject3dBO {
             }
         } else {    // Single shadow volume (tokenSizes size = 1)
             // front cap - triangle fan
-            for (int i = 0; i < vertexCount / 2; i++) {
+            for (int i = 0; i < positions.size() / 2; i++) {
                 indices.add((byte) i);
             }
             indices.add((byte) 1);
 
             // mantle - triangle strip
-            for (int i = 0; i < (vertexCount / 2 - 1); i++) {
+            for (int i = 0; i < (positions.size() / 2 - 1); i++) {
                 indices.add((byte) (i + 1));
-                indices.add((byte) (vertexCount / 2 + i + 1));
+                indices.add((byte) (positions.size() / 2 + i + 1));
             }
             // closing mantle strip
             indices.add((byte) 1);
-            indices.add((byte) (vertexCount / 2 + 1));
+            indices.add((byte) (positions.size() / 2 + 1));
 
             // back cap - triangle fan, should be in reverse order (normal pointing away from light source) for correct culling
-            indices.add((byte) (vertexCount / 2));    // back cap center
-            for (int i = 0; i < (vertexCount / 2 - 1); i++) {
-                indices.add((byte) (vertexCount - (i + 1)));
+            indices.add((byte) (positions.size() / 2));    // back cap center
+            for (int i = 0; i < (positions.size() / 2 - 1); i++) {
+                indices.add((byte) (positions.size() - (i + 1)));
             }
-            indices.add((byte) (vertexCount - 1));
+            indices.add((byte) (positions.size() - 1));
 
         }
     }
@@ -237,16 +236,16 @@ public class ShadowVolumeBO extends ByteObject3dBO {
 
     private void renderSingleShadowVolume() {
         GL11.glDrawElements(GL11.GL_TRIANGLE_FAN,
-                (vertexCount / 2 + 1),
+                (positions.size() / 2 + 1),
                 GL11.GL_UNSIGNED_BYTE,
                 0);
         GL11.glDrawElements(GL11.GL_TRIANGLE_STRIP,
-                vertexCount,    // #vxs in a strip
+                positions.size(),    // #vxs in a strip
                 GL11.GL_UNSIGNED_BYTE,
-                (vertexCount / 2 + 1));
+                (positions.size() / 2 + 1));
         GL11.glDrawElements(GL11.GL_TRIANGLE_FAN,
-                (vertexCount / 2 + 1),
+                (positions.size() / 2 + 1),
                 GL11.GL_UNSIGNED_BYTE,
-                ((vertexCount / 2 + 1) + (vertexCount)));
+                ((positions.size() / 2 + 1) + (positions.size())));
     }
 }

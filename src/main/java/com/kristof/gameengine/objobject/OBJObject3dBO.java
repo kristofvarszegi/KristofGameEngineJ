@@ -342,9 +342,7 @@ public class OBJObject3dBO extends ShortObject3dBO {
 
         // Convert to degrees for display
         final List<Float> anglesInDegrees = new Vector<>();
-        for (final Float angle : angles) {
-            anglesInDegrees.add((float) Math.toDegrees(angle));
-        }
+        angles.forEach((final Float angle) -> anglesInDegrees.add((float) Math.toDegrees(angle)));
 
         // Sort vertices according to angles
         List<Vector3fExt> shVsCCW = new Vector<>();

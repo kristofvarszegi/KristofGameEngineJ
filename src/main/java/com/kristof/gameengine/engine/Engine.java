@@ -213,9 +213,7 @@ public class Engine {
                     glBufferStore.normalMapIndices.get(TEXTURE_ASSET_KEYS.MTL_TRIM01), r));
         }
 
-        for (final Object3d staticObject : scene.staticObjects) {
-            staticObject.setFixedInSpace(true);
-        }
+        scene.staticObjects.forEach((final Object3d object3d) -> object3d.setFixedInSpace(true));
     }
 
     private void readInput() {
@@ -389,21 +387,17 @@ public class Engine {
         }
 
         // Apply collision between inert objects
-        for (int i = 0; i < scene.inertObjects.size(); i++) {
-            for (int j = 0; j < scene.inertObjects.size(); j++) {
-                if (i != j) {
-                    scene.inertObjects.get(i).addCollisionForceBy(scene.inertObjects.get(j));
+        scene.inertObjects.forEach((final Object3d object3d1) -> {
+            scene.inertObjects.forEach((final Object3d object3d2) -> {
+                if (!object3d1.equals(object3d2)) {
+                    object3d1.addCollisionForceBy(object3d2);
                 }
-            }
-        }
+            });
+        });
 
         // Apply avatar's attributes according to collision
-        for (final Object3d staticObject : scene.staticObjects) {
-            scene.avatar.addCollisionForceBy(staticObject);
-        }
-        for (final Object3d inertObject : scene.inertObjects) {
-            scene.avatar.addCollisionForceBy(inertObject);
-        }
+        scene.staticObjects.forEach((final Object3d object3d) -> scene.avatar.addCollisionForceBy(object3d));
+        scene.inertObjects.forEach((final Object3d object3d) -> scene.avatar.addCollisionForceBy(object3d));
 
         // TODO from scene description
         kinematics.prevLightPosition = kinematics.lightPosition;
@@ -411,15 +405,15 @@ public class Engine {
         //kinematics.lightPosition = new Vector3fExt(0f, 100f, 0f);
         kinematics.lightPosition = scene.avatar.getPosition();
 
-        for (final Object3d inertObject : scene.inertObjects) {
+        scene.inertObjects.forEach((final Object3d inertObject) -> {
             inertObject.resetForce();
             if (config.isGravityOn) {
                 inertObject.addForce(new Vector3fExt(0,
                         -Object3d.GRAVITY_ACCEL_EARTH * inertObject.getMass(), 0));
             }
-            for (final Object3d staticObject : scene.staticObjects) {
+            scene.staticObjects.forEach((final Object3d staticObject) -> {
                 inertObject.addCollisionForceBy(staticObject);
-            }
+            });
             inertObject.addCollisionForceBy(scene.avatar);    // TODO make counter-forces in one round
 
             if (InputHandler.isKeyDown(GLFW_KEY_G)) {
@@ -432,7 +426,7 @@ public class Engine {
                 }
             }
             inertObject.update(Vector3fExt.NULL_VECTOR);
-        }
+        });
 
         // Update object properties according to the calculated forces
         final Vector3fExt dashVr = ui.isDashTargetSet ? kinematics.lookDirection.getWithLength(DASH_DISTANCE)
@@ -440,9 +434,7 @@ public class Engine {
         scene.skyBox.setPosition(kinematics.eyePosition);
         scene.skyBox.calculateModelMatrix();
         scene.avatar.update(dashVr);  // TODO add collision when dashing
-        for (final Object3d staticObject : scene.staticObjects) {
-            staticObject.update(Vector3fExt.NULL_VECTOR);    //new Matrix4f());
-        }
+        scene.staticObjects.forEach((final Object3d staticObject) -> staticObject.update(Vector3fExt.NULL_VECTOR));
 
         ui.isDashTargetSet = false;
         kinematics.dashTarget.reset();
@@ -649,12 +641,10 @@ public class Engine {
     }
 
     private void renderWorldObjects(int[] uniformIndices) {
-        for (final Object3d staticObject : scene.staticObjects) {
-            staticObject.render(uniformIndices, kinematics.viewMatrix, kinematics.projectionMatrix);
-        }
-        for (final Object3d inertObject : scene.inertObjects) {
-            inertObject.render(uniformIndices, kinematics.viewMatrix, kinematics.projectionMatrix);
-        }
+        scene.staticObjects.forEach((final Object3d staticObject) -> staticObject.render(uniformIndices,
+                kinematics.viewMatrix, kinematics.projectionMatrix));
+        scene.inertObjects.forEach((final Object3d inertObject) -> inertObject.render(uniformIndices,
+                kinematics.viewMatrix, kinematics.projectionMatrix));
         scene.avatar.render(uniformIndices, kinematics.viewMatrix, kinematics.projectionMatrix);
     }
 
@@ -662,16 +652,14 @@ public class Engine {
                                      ShadowVolume.LIGHT_PARAM_TYPE lightType) {
         if (scene.staticShadowVolumeBO == null || !kinematics.lightPosition.equals(kinematics.prevLightPosition)) {
             final ShadowVolume staticShadowVolume = new ShadowVolume(lightParam, lightType);
-            for (final Object3d staticObject : scene.staticObjects) {
-                staticShadowVolume.addData(staticObject.getShadowVertices(lightParam, lightType));
-            }
+            scene.staticObjects.forEach((final Object3d staticObject) -> staticShadowVolume.addData(
+                    staticObject.getShadowVertices(lightParam, lightType)));
             scene.staticShadowVolumeBO = new ShadowVolumeBO(staticShadowVolume);
         }
         scene.staticShadowVolumeBO.render(uniformIndices, vMatrix, pMatrix, Object3dFactory.createDummyObject3d());
 
-        for (final Object3d inertObject : scene.inertObjects) {
-            inertObject.renderDynamicShadow(uniformIndices, vMatrix, pMatrix, lightParam);
-        }
+        scene.inertObjects.forEach((final Object3d inertObject) -> inertObject.renderDynamicShadow(uniformIndices,
+                vMatrix, pMatrix, lightParam));
 
         scene.avatar.renderDynamicShadow(uniformIndices, vMatrix, pMatrix, lightParam);
     }

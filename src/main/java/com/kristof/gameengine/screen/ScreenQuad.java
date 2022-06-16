@@ -33,7 +33,7 @@ public class ScreenQuad extends Object3d {
 
     @Override
     public Vector3fExt[] applyCollisionTo(Object3d obj2) {
-        return (new Vector3fExt[]{Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR});
+        return new Vector3fExt[]{Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR};
     }
 
     @Override

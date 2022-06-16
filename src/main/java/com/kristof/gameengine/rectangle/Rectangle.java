@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.Vector;
 
 import static com.kristof.gameengine.shadow.ShadowVolume.LIGHT_PARAM_TYPE.LIGHT_DIRECTION;
@@ -67,9 +68,8 @@ public class Rectangle extends Plate {
         normal = rect2.getNormal();
         right = rect2.getRight();
         up = rect2.getUp();
-        id = rect2.getId();
-        neighborIDs = new int[4];
-        int[] rect2NIDs = rect2.getNeighborIDs();
+        neighborIDs = new UUID[4];
+        UUID[] rect2NIDs = rect2.getNeighborIDs();
         System.arraycopy(rect2NIDs, 0, neighborIDs, 0, 4);
         if (!isGhost) glBufferObject = new RectangleBO(aSize, aSize);
     }

@@ -9,6 +9,7 @@ import com.kristof.gameengine.util.Material;
 import com.kristof.gameengine.util.Vector3fExt;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.Vector;
 
 public class Cuboid extends Object3d {
@@ -28,59 +29,43 @@ public class Cuboid extends Object3d {
         zSize = c;
         diagonalLength = (new Vector3fExt(0.5f * a, 0.5f * b, 0.5f * c)).getLength();
 
-        Rectangle tmpFace;
         float ap2 = 0.5f;
         float bp2 = 0.5f;
         float cp2 = 0.5f;    // size will do the scaling
 
-        // Front face
-        tmpFace = new Rectangle(new Vector3fExt(0, 0, cp2),0.5f * Vector3fExt.PI,
+        final Rectangle frontFace = new Rectangle(new Vector3fExt(0, 0, cp2),0.5f * Vector3fExt.PI,
                 1.5f * Vector3fExt.PI, 0.5f * Vector3fExt.PI, Vector3fExt.NULL_VECTOR,
                 Vector3fExt.NULL_VECTOR, ColorVector.MAGENTA, Material.PLASTIC, -1, -1, a,
                 c, true);
-        tmpFace.setId(1);
-        tmpFace.setNeighborIds(2, 5, 4, 6);
-        faces.add(tmpFace);
-
-        // Right face
-        tmpFace = new Rectangle(new Vector3fExt(ap2, 0, 0), 0.5f * Vector3fExt.PI, 0,
+        final Rectangle rightFace = new Rectangle(new Vector3fExt(ap2, 0, 0), 0.5f * Vector3fExt.PI, 0,
                 0.5f * Vector3fExt.PI, Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.MAGENTA,
                 Material.PLASTIC, -1, -1, b, c, true);
-        tmpFace.setId(2);
-        tmpFace.setNeighborIds(3, 5, 1, 6);
-        faces.add(tmpFace);
-
-        // Back face
-        tmpFace = new Rectangle(new Vector3fExt(0, 0, -cp2), 0.5f * Vector3fExt.PI,
+        final Rectangle backFace = new Rectangle(new Vector3fExt(0, 0, -cp2), 0.5f * Vector3fExt.PI,
                 0.5f * Vector3fExt.PI, 0.5f * Vector3fExt.PI, Vector3fExt.NULL_VECTOR,
                 Vector3fExt.NULL_VECTOR, ColorVector.MAGENTA, Material.PLASTIC, -1, -1, a, c, true);
-        tmpFace.setId(3);
-        tmpFace.setNeighborIds(4, 5, 2, 6);
-        faces.add(tmpFace);
-
-        // Left face
-        tmpFace = new Rectangle(new Vector3fExt(-ap2, 0, 0), 0.5f * Vector3fExt.PI, Vector3fExt.PI,
+        final Rectangle leftFace = new Rectangle(new Vector3fExt(-ap2, 0, 0), 0.5f * Vector3fExt.PI, Vector3fExt.PI,
                 0.5f * Vector3fExt.PI, Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.MAGENTA,
                 Material.PLASTIC, -1, -1, b, c, true);
-        tmpFace.setId(4);
-        tmpFace.setNeighborIds(1, 5, 3, 6);
-        faces.add(tmpFace);
-
-        // Top face
-        tmpFace = new Rectangle(new Vector3fExt(0, bp2, 0), 0, 0, 0,
+        final Rectangle topFace = new Rectangle(new Vector3fExt(0, bp2, 0), 0, 0, 0,
                 Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.MAGENTA, Material.PLASTIC,
                 -1, -1, a, c, true);
-        tmpFace.setId(5);
-        tmpFace.setNeighborIds(2, 3, 4, 1);
-        faces.add(tmpFace);
-
-        // Bottom face
-        tmpFace = new Rectangle(new Vector3fExt(0, -bp2, 0), Vector3fExt.PI, 0, 0,
+        final Rectangle bottomFace = new Rectangle(new Vector3fExt(0, -bp2, 0), Vector3fExt.PI, 0, 0,
                 Vector3fExt.NULL_VECTOR, Vector3fExt.NULL_VECTOR, ColorVector.MAGENTA, Material.PLASTIC,
                 -1, -1, a, c, true);
-        tmpFace.setId(6);
-        tmpFace.setNeighborIds(2, 1, 4, 3);
-        faces.add(tmpFace);
+
+        frontFace.setNeighborIds(rightFace.getId(), topFace.getId(), leftFace.getId(), bottomFace.getId());
+        rightFace.setNeighborIds(backFace.getId(), topFace.getId(), frontFace.getId(), bottomFace.getId());
+        backFace.setNeighborIds(leftFace.getId(), topFace.getId(), rightFace.getId(), bottomFace.getId());
+        leftFace.setNeighborIds(frontFace.getId(), topFace.getId(), backFace.getId(), bottomFace.getId());
+        topFace.setNeighborIds(rightFace.getId(), backFace.getId(), leftFace.getId(), frontFace.getId());
+        bottomFace.setNeighborIds(rightFace.getId(), frontFace.getId(), leftFace.getId(), backFace.getId());
+
+        faces.add(frontFace);
+        faces.add(rightFace);
+        faces.add(backFace);
+        faces.add(leftFace);
+        faces.add(topFace);
+        faces.add(bottomFace);
     }
 
     @Override
@@ -160,9 +145,7 @@ public class Cuboid extends Object3d {
 
         //LOGGER.debug("shadowEdgesMixed:\n" + CWBRenderer.toString(shadowEdgesMixed, TOSTRING_CLASS_NAMES.VECTOR3FM_ARRAY, 1, 2));
         final List<Vector3fExt> faceNormals = new Vector<>();
-        for (final Rectangle rectangle : facesTransformed) {
-            faceNormals.add(rectangle.getNormal());
-        }
+        facesTransformed.forEach((final Rectangle rectangle) -> faceNormals.add(rectangle.getNormal()));
 
         // Sort shadow edges
 		/*
@@ -282,9 +265,7 @@ public class Cuboid extends Object3d {
 
         // Convert to degrees for display
         final List<Float> anglesInDegrees = new Vector<>();
-        for (final Float angle : angles) {
-            anglesInDegrees.add((float) Math.toDegrees(angle));
-        }
+        angles.forEach((final Float angle) -> anglesInDegrees.add((float) Math.toDegrees(angle)));
 
         // Sort vertices according to angles
         final List<Vector3fExt> shVsCCW = new Vector<>();

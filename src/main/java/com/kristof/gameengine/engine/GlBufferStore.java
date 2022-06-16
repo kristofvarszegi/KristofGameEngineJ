@@ -461,12 +461,10 @@ public class GlBufferStore {
 
         // TODO delete all the other programs too
 
-        for (Map.Entry<MiscConstants.TEXTURE_ASSET_KEYS, Integer> entry : colorMapIndices.entrySet()) {
-            glDeleteTextures(entry.getValue());
-        }
-        for (Map.Entry<MiscConstants.TEXTURE_ASSET_KEYS, Integer> entry : normalMapIndices.entrySet()) {
-            glDeleteTextures(entry.getValue());
-        }
+        colorMapIndices.entrySet().forEach((final Map.Entry<MiscConstants.TEXTURE_ASSET_KEYS, Integer> entry) ->
+                glDeleteTextures(entry.getValue()));
+        normalMapIndices.entrySet().forEach((final Map.Entry<MiscConstants.TEXTURE_ASSET_KEYS, Integer> entry) ->
+                glDeleteTextures(entry.getValue()));
         glDeleteTextures(postProcessTexIndex);
         glDeleteTextures(depthTexIndex);
 

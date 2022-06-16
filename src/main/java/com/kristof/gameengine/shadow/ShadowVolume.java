@@ -150,7 +150,7 @@ public class ShadowVolume extends Object3d {
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder("ShadowVolume: ");
+        final StringBuilder str = new StringBuilder("ShadowVolume: ");
         int vxIndex = 0;
         for (final Integer tokenSize : tokenSizes) {
             str.append("\ntoken size: ").append(tokenSize);
