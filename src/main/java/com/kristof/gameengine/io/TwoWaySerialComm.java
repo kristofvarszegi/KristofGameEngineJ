@@ -4,10 +4,15 @@ import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
 public class TwoWaySerialComm {
+    private static final Logger LOGGER = LogManager.getLogger(TwoWaySerialComm.class);
+
     private OutputStream outStream;
 
     public TwoWaySerialComm() {
@@ -21,7 +26,9 @@ public class TwoWaySerialComm {
     public void connect(String portName) throws Exception {
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
         if (portIdentifier.isCurrentlyOwned()) {
-            System.out.println("Error: Port is currently in use");
+            final String message = "Error: Port is currently in use";
+            LOGGER.error(message);
+            throw new RuntimeException(message);
         } else {
             CommPort commPort = portIdentifier.open(this.getClass().getName(), 2000);
             if (commPort instanceof SerialPort serialPort) {
@@ -30,7 +37,9 @@ public class TwoWaySerialComm {
                 //(new Thread(new SerialReader(in))).start();
                 //(new Thread(new SerialWriter(out))).start();
             } else {
-                System.out.println("Error: Only serial ports are handled by this example.");
+                final String message = "Error: Only serial ports are handled by this example.";
+                LOGGER.error(message);
+                throw new RuntimeException(message);
             }
         }
     }
@@ -55,7 +64,7 @@ public class TwoWaySerialComm {
             int len = -1;
             try {
                 while ( ( len = this.in.read(buffer)) > -1 ) {
-                    System.out.print(new String(buffer,0,len));
+                    LOGGER.debug(new String(buffer,0,len));
                 }
             }
             catch ( IOException e ) {
@@ -88,7 +97,7 @@ public class TwoWaySerialComm {
         final java.util.Enumeration<CommPortIdentifier> portEnum = CommPortIdentifier.getPortIdentifiers();
         while (portEnum.hasMoreElements()) {
             CommPortIdentifier portIdentifier = portEnum.nextElement();
-            System.out.println(portIdentifier.getName() + " - " + getPortTypeName(portIdentifier.getPortType()));
+            LOGGER.debug(portIdentifier.getName() + " - " + getPortTypeName(portIdentifier.getPortType()));
         }
     }
 

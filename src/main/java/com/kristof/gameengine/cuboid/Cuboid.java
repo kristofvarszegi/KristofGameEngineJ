@@ -147,7 +147,7 @@ public class Cuboid extends Object3d {
                             };
                             if (!otherFace.isFacingInwardVector(diffLToVx)) {
                                 //facingCounter++;
-                                //System.out.println("Neighboring faces:\n" + currentFace.getId() + " - " + currentFace + ",\n" + otherFace.getId() + " - " + otherFace + "\n");
+                                //LOGGER.debug("Neighboring faces:\n" + currentFace.getId() + " - " + currentFace + ",\n" + otherFace.getId() + " - " + otherFace + "\n");
                                 shadowEdgesMixed.add(currentFace.getCommonEdgeWith(otherFace));    // TODO fix
                             }
                         }
@@ -158,7 +158,7 @@ public class Cuboid extends Object3d {
         }
         // now we have all the shadow edges mixed
 
-        //System.out.println("shadowEdgesMixed:\n" + CWBRenderer.toString(shadowEdgesMixed, TOSTRING_CLASS_NAMES.VECTOR3FM_ARRAY, 1, 2));
+        //LOGGER.debug("shadowEdgesMixed:\n" + CWBRenderer.toString(shadowEdgesMixed, TOSTRING_CLASS_NAMES.VECTOR3FM_ARRAY, 1, 2));
         final List<Vector3fExt> faceNormals = new Vector<>();
         for (final Rectangle rectangle : facesTransformed) {
             faceNormals.add(rectangle.getNormal());
@@ -217,7 +217,7 @@ public class Cuboid extends Object3d {
                 currentVertex = vector3FExts[j];
                 isAlreadyIn = false;
                 for (Vector3fExt vector3FExt : shVsMixed) {
-                    //System.out.println("shadowEdgesMixed.get(i)[j]: " + shadowEdgesMixed.get(i)[j]);
+                    //LOGGER.debug("shadowEdgesMixed.get(i)[j]: " + shadowEdgesMixed.get(i)[j]);
                     if (vector3FExt.equals(currentVertex)) {
                         isAlreadyIn = true;
                         break;
@@ -258,15 +258,8 @@ public class Cuboid extends Object3d {
 
         final List<Float> angles = new Vector<>();
         //angles.add(0f); no need, we check the min for the first not shPos1 vertex
-        Vector3fExt shPosMixed1 = Vector3fExt.NULL_VECTOR.getCopy();
-        Vector3fExt shPosProjd1 = Vector3fExt.NULL_VECTOR.getCopy();
-
-        try {
-            shPosMixed1 = shVsMixed.get(0);
-            shPosProjd1 = shVsProjd.get(0);
-        } catch (IndexOutOfBoundsException e) {
-            System.err.println("shadowEdgesMixed size: " + shadowEdgesMixed.size());
-        }
+        final Vector3fExt shPosMixed1 = shVsMixed.get(0);
+        final Vector3fExt shPosProjd1 = shVsProjd.get(0);
 
         float mxProd, dotProd, crossProdSq, angle1;
         for (int i = 1; i < shVsProjd.size(); i++) {

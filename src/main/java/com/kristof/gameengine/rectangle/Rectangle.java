@@ -8,12 +8,17 @@ import com.kristof.gameengine.util.Material;
 import com.kristof.gameengine.util.Matrix4f;
 import com.kristof.gameengine.util.Vector3fExt;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.List;
 import java.util.Vector;
 
 import static com.kristof.gameengine.shadow.ShadowVolume.LIGHT_PARAM_TYPE.LIGHT_DIRECTION;
 
 public class Rectangle extends Plate {
+    private static final Logger LOGGER = LogManager.getLogger(Rectangle.class);
+
     private final float aSize;
     private final float bSize;
     private RectangleBO glBufferObject;
@@ -164,7 +169,7 @@ public class Rectangle extends Plate {
                 if (currentIndex == 2) return commonEdge;
             }
         }
-        System.out.println("no common edge found in getCommonEdge(), commonEdge: " + commonEdge[0] + ", " + commonEdge[1]);
+        LOGGER.debug("No common edge found (" + commonEdge[0] + ", " + commonEdge[1] + ")");
         return commonEdge;
     }
 

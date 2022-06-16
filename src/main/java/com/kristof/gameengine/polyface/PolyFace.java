@@ -282,19 +282,19 @@ public class PolyFace extends Object3d {
 		final Vector3fExt projectedPos = rawDistance.getProjectedToSurface(normal, position);
 
 		if (Math.abs(normalComponent) > obj2.getAverageSize()) {	// If object is not touching the plain of the polygon
-			System.out.println("Object is NOT touching the plain of the polygon"); 
+			LOGGER.debug("Object is NOT touching the plain of the polygon");
 			return null;
 		}
-		System.out.println("Object IS touching the plain of the polygon");
+		LOGGER.debug("Object IS touching the plain of the polygon");
 		
 		if (!isOnPlain(projectedPos)) {	// if object is touching the plain of the face, but it is not above the polygon
-			System.out.println("Object is NOT above the polygon");
+			LOGGER.debug("Object is NOT above the polygon");
 			return null;
 		}
-		System.out.println("Object IS above the polygon");
+		LOGGER.debug("Object IS above the polygon");
 		
 		// Collision case
-		System.out.println("PolyFace collison case");
+		LOGGER.debug("PolyFace collison case");
 		final float collisionGap = obj2.getAverageSize() - normalComponent + GAP_SIZE;
 
 		final Vector3fExt obj2V = obj2.getVelocity();

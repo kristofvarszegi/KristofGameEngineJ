@@ -4,6 +4,7 @@ import static com.kristof.gameengine.engine.EngineConfig.RENDER_MODE.RAY_TRACING
 import static com.kristof.gameengine.shadow.ShadowVolume.LIGHT_PARAM_TYPE.LIGHT_POSITION;
 import static com.kristof.gameengine.engine.EngineGLConstants.*;
 import static com.kristof.gameengine.engine.EngineMiscConstants.*;
+import static com.kristof.gameengine.util.Utils.*;
 
 import com.kristof.gameengine.io.InputHandler;
 import com.kristof.gameengine.object3d.Object3d;
@@ -13,8 +14,6 @@ import com.kristof.gameengine.shadow.ShadowVolume;
 import com.kristof.gameengine.shadow.ShadowVolumeBO;
 import com.kristof.gameengine.util.*;
 
-import static com.kristof.gameengine.util.Utils.*;
-import static java.lang.Math.sin;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -30,6 +29,10 @@ import org.lwjgl.system.Callback;
 import de.matthiasmann.twl.utils.PNGDecoder;
 import de.matthiasmann.twl.utils.PNGDecoder.Format;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import static java.lang.Math.sin;
 import static java.lang.Math.tan;
 
 import java.awt.*;
@@ -41,6 +44,8 @@ import java.util.*;
 import java.util.List;
 
 public class Engine {
+    private static final Logger LOGGER = LogManager.getLogger(Engine.class);
+
     private Object3d avatar;
     private Object3d skyBox;
     private final List<Object3d> staticObjects;
@@ -209,7 +214,7 @@ public class Engine {
     }
 
     private void initGL() {
-        GLFWErrorCallback.createPrint(System.err).set();
+        GLFWErrorCallback.createPrint(System.err).set();    // TODO find the canonical way to direct this to Log4j
 
         if (!glfwInit())
             throw new IllegalStateException("Unable to initialize GLFW");
@@ -266,8 +271,10 @@ public class Engine {
 
     // TODO merge into one single shader loader method
     private void loadDefaultShaders() {
-        final int vertexShaderIndex = loadShader("res/shaders/default_shader.vert", GL_VERTEX_SHADER);
-        final int fragmentShaderIndex = loadShader("res/shaders/default_shader.frag", GL_FRAGMENT_SHADER);
+        final int vertexShaderIndex = loadShader("src/main/resources/shaders/default_shader.vert",
+                GL_VERTEX_SHADER);
+        final int fragmentShaderIndex = loadShader("src/main/resources/shaders/default_shader.frag",
+                GL_FRAGMENT_SHADER);
         defaultProgramIndex = glCreateProgram();
         glAttachShader(defaultProgramIndex, vertexShaderIndex);
         glAttachShader(defaultProgramIndex, fragmentShaderIndex);
@@ -294,8 +301,8 @@ public class Engine {
     }
 
     private void loadSkyBoxShaders() {
-        final int vertexShaderIndex = loadShader("res/shaders/default_shader.vert", GL_VERTEX_SHADER);
-        final int fragmentShaderIndex = loadShader("res/shaders/skybox_shader.frag", GL_FRAGMENT_SHADER);
+        final int vertexShaderIndex = loadShader("src/main/resources/shaders/default_shader.vert", GL_VERTEX_SHADER);
+        final int fragmentShaderIndex = loadShader("src/main/resources/shaders/skybox_shader.frag", GL_FRAGMENT_SHADER);
         skyBoxProgramIndex = glCreateProgram();
         glAttachShader(skyBoxProgramIndex, vertexShaderIndex);
         glAttachShader(skyBoxProgramIndex, fragmentShaderIndex);
@@ -319,8 +326,8 @@ public class Engine {
     }
 
     private void loadMonoScreenShaders() {
-        final int vertexShaderIndex = loadShader("res/shaders/screenquad_shader.vert", GL_VERTEX_SHADER);
-        final int fragmentShaderIndex = loadShader("res/shaders/shadow_shader.frag", GL_FRAGMENT_SHADER);
+        final int vertexShaderIndex = loadShader("src/main/resources/shaders/screenquad_shader.vert", GL_VERTEX_SHADER);
+        final int fragmentShaderIndex = loadShader("src/main/resources/shaders/shadow_shader.frag", GL_FRAGMENT_SHADER);
         monoScreenProgramIndex = glCreateProgram();
         glAttachShader(monoScreenProgramIndex, vertexShaderIndex);
         glAttachShader(monoScreenProgramIndex, fragmentShaderIndex);
@@ -335,8 +342,8 @@ public class Engine {
     }
 
     private void loadPostProcessShaders() {
-        final int vertexShaderIndex = loadShader("res/shaders/screenquad_shader.vert", GL_VERTEX_SHADER);
-        final int fragmentShaderIndex = loadShader("res/shaders/post_process_shader.frag", GL_FRAGMENT_SHADER);
+        final int vertexShaderIndex = loadShader("src/main/resources/shaders/screenquad_shader.vert", GL_VERTEX_SHADER);
+        final int fragmentShaderIndex = loadShader("src/main/resources/shaders/post_process_shader.frag", GL_FRAGMENT_SHADER);
 
         postProcessProgramIndex = glCreateProgram();
         glAttachShader(postProcessProgramIndex, vertexShaderIndex);
@@ -362,8 +369,8 @@ public class Engine {
 
     private void loadVelocityMapShaders() {
         // 1st shader
-        int vertexShaderIndex = loadShader("res/shaders/velocitymap1_shader.vert", GL_VERTEX_SHADER);
-        int fragmentShaderIndex = loadShader("res/shaders/velocitymap_shader.frag", GL_FRAGMENT_SHADER);
+        int vertexShaderIndex = loadShader("src/main/resources/shaders/velocitymap1_shader.vert", GL_VERTEX_SHADER);
+        int fragmentShaderIndex = loadShader("src/main/resources/shaders/velocitymap_shader.frag", GL_FRAGMENT_SHADER);
 
         velocityMap1ProgramIndex = glCreateProgram();
         exitOnGLError("glCreateProgram() velocityMapProgram1");
@@ -386,8 +393,8 @@ public class Engine {
         velocityMap1UniformIndices[U_PREV_MMATRIX_MAP] = glGetUniformLocation(velocityMap1ProgramIndex, PREV_M_MATRIX_LABEL);
 
         // 2nd shader
-        vertexShaderIndex = loadShader("res/shaders/velocitymap2_shader.vert", GL_VERTEX_SHADER);
-        fragmentShaderIndex = loadShader("res/shaders/velocitymap_shader.frag", GL_FRAGMENT_SHADER);
+        vertexShaderIndex = loadShader("src/main/resources/shaders/velocitymap2_shader.vert", GL_VERTEX_SHADER);
+        fragmentShaderIndex = loadShader("src/main/resources/shaders/velocitymap_shader.frag", GL_FRAGMENT_SHADER);
         velocityMap2ProgramIndex = glCreateProgram();
         glAttachShader(velocityMap2ProgramIndex, vertexShaderIndex);
         glAttachShader(velocityMap2ProgramIndex, fragmentShaderIndex);
@@ -408,8 +415,8 @@ public class Engine {
     }
 
     private void loadRayTracingShaders() {
-        final int vertexShaderIndex = loadShader("res/shaders/screenquad_shader.vert", GL_VERTEX_SHADER);
-        final int fragmentShaderIndex = loadShader("res/shaders/raytracing_shader.frag", GL_FRAGMENT_SHADER);
+        final int vertexShaderIndex = loadShader("src/main/resources/shaders/screenquad_shader.vert", GL_VERTEX_SHADER);
+        final int fragmentShaderIndex = loadShader("src/main/resources/shaders/raytracing_shader.frag", GL_FRAGMENT_SHADER);
 
         rayTracingProgramIndex = glCreateProgram();
         glAttachShader(rayTracingProgramIndex, vertexShaderIndex);
@@ -442,37 +449,37 @@ public class Engine {
     private void loadBuiltInTextures() {    // TODO from config
         final int colorMapTextureUnit = GL_TEXTURE0 + COLORMAP_TEXTURE_UNIT;
         colorMapIndices.put(TEXTURE_ASSET_KEYS.WHITE,
-                loadPNGTexture("res/textures/white_colormap.png", colorMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/white_colormap.png", colorMapTextureUnit));
         colorMapIndices.put(TEXTURE_ASSET_KEYS.BROKEN,
-                loadPNGTexture("res/textures/ft_broken01_c.png", colorMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/ft_broken01_c.png", colorMapTextureUnit));
         colorMapIndices.put(TEXTURE_ASSET_KEYS.SPACE_CLOUDS,
-                loadPNGTexture("res/textures/spaceclouds_colormap.png", colorMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/spaceclouds_colormap.png", colorMapTextureUnit));
         colorMapIndices.put(TEXTURE_ASSET_KEYS.DIAGONAL,
-                loadPNGTexture("res/textures/ft_diagonal01_c.png", colorMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/ft_diagonal01_c.png", colorMapTextureUnit));
         colorMapIndices.put(TEXTURE_ASSET_KEYS.MANHOLE,
-                loadPNGTexture("res/textures/manhole_256x256_colormap.png", colorMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/manhole_256x256_colormap.png", colorMapTextureUnit));
         colorMapIndices.put(TEXTURE_ASSET_KEYS.MTL_FLOOR02,
-                loadPNGTexture("res/textures/mtl_floor02_c.png", colorMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/mtl_floor02_c.png", colorMapTextureUnit));
         colorMapIndices.put(TEXTURE_ASSET_KEYS.MTL_TRIM01,
-                loadPNGTexture("res/textures/mtl_trim01_c.png", colorMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/mtl_trim01_c.png", colorMapTextureUnit));
         colorMapIndices.put(TEXTURE_ASSET_KEYS.REDBRICK,
-                loadPNGTexture("res/textures/redbrick01_c.png", colorMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/redbrick01_c.png", colorMapTextureUnit));
 
         final int normalMapTextureUnit = GL_TEXTURE0 + NORMALMAP_TEXTURE_UNIT;
         normalMapIndices.put(TEXTURE_ASSET_KEYS.BLUE,
-                loadPNGTexture("res/textures/blue_normalmap.png", normalMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/blue_normalmap.png", normalMapTextureUnit));
         normalMapIndices.put(TEXTURE_ASSET_KEYS.BROKEN,
-                loadPNGTexture("res/textures/ft_broken01_n.png", normalMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/ft_broken01_n.png", normalMapTextureUnit));
         normalMapIndices.put(TEXTURE_ASSET_KEYS.DIAGONAL,
-                loadPNGTexture("res/textures/ft_diagonal01_n.png", normalMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/ft_diagonal01_n.png", normalMapTextureUnit));
         normalMapIndices.put(TEXTURE_ASSET_KEYS.MANHOLE,
-                loadPNGTexture("res/textures/manhole_256x256_normalmap.png", normalMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/manhole_256x256_normalmap.png", normalMapTextureUnit));
         normalMapIndices.put(TEXTURE_ASSET_KEYS.MTL_FLOOR02,
-                loadPNGTexture("res/textures/mtl_floor02_n.png", normalMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/mtl_floor02_n.png", normalMapTextureUnit));
         normalMapIndices.put(TEXTURE_ASSET_KEYS.MTL_TRIM01,
-                loadPNGTexture("res/textures/mtl_trim01_n.png", normalMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/mtl_trim01_n.png", normalMapTextureUnit));
         normalMapIndices.put(TEXTURE_ASSET_KEYS.REDBRICK,
-                loadPNGTexture("res/textures/redbrick01_n.png", normalMapTextureUnit));
+                loadPNGTexture("src/main/resources/textures/redbrick01_n.png", normalMapTextureUnit));
     }
 
     private int loadPNGTexture(String filename, int textureUnit) {
@@ -578,8 +585,9 @@ public class Engine {
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthStencilBufferIndex);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            System.out.println("Framebuffer incomplete");
-            System.exit(-1);
+            final String message = "Framebuffer incomplete";
+            LOGGER.error(message);
+            throw new RuntimeException(message);
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -609,8 +617,9 @@ public class Engine {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, velocityTex1Index, 0);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, velocityDepthBuffer1Index);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            System.out.println("Framebuffer incomplete");
-            System.exit(-1);
+            final String message = "Framebuffer incomplete";
+            LOGGER.error(message);
+            throw new RuntimeException(message);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -637,8 +646,9 @@ public class Engine {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, velocityTex2Index, 0);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, velocityDepthBuffer2Index);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            System.out.println("2nd velocitybuffer incomplete");
-            System.exit(-1);
+            final String message = "2nd velocity buffer incomplete";
+            LOGGER.error(message);
+            throw new RuntimeException(message);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
@@ -865,7 +875,7 @@ public class Engine {
             if (InputHandler.isKeyDown(GLFW_KEY_W)) {
                 try {
                     outStream.write(GLFW_KEY_W);
-                    System.out.println(GLFW_KEY_W + " written to serial port.");
+                    LOGGER.debug(GLFW_KEY_W + " written to serial port.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -873,7 +883,7 @@ public class Engine {
             if (InputHandler.isKeyDown(GLFW_KEY_A)) {
                 try {
                     outStream.write(GLFW_KEY_A);
-                    System.out.println(GLFW_KEY_A + " written to serial port.");
+                    LOGGER.debug(GLFW_KEY_A + " written to serial port.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -881,7 +891,7 @@ public class Engine {
             if (InputHandler.isKeyDown(GLFW_KEY_S)) {
                 try {
                     outStream.write(GLFW_KEY_S);
-                    System.out.println(GLFW_KEY_S + " written to serial port.");
+                    LOGGER.debug(GLFW_KEY_S + " written to serial port.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -889,15 +899,7 @@ public class Engine {
             if (InputHandler.isKeyDown(GLFW_KEY_D)) {
                 try {
                     outStream.write(GLFW_KEY_D);
-                    System.out.println(GLFW_KEY_D + " written to serial port.");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (InputHandler.isKeyDown(GLFW_KEY_M)) {
-                try {
-                    outStream.write(GLFW_KEY_M);
-                    System.out.println(GLFW_KEY_M + " written to serial port.");
+                    LOGGER.debug(GLFW_KEY_D + " written to serial port.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -1008,7 +1010,7 @@ public class Engine {
         final long loopTime = System.nanoTime() - newLoopStartTime;
         final long framesPerSec = Math.round(1000000000. / ((double) loopTime));
         if (System.nanoTime() - prevLoopEndTime > 0.1 * 1000000000) {
-            System.out.println("fps: " + framesPerSec + ", T = " + 0.000001 * loopTime + " ms");
+            LOGGER.debug("fps: " + framesPerSec + ", T = " + 0.000001 * loopTime + " ms");
         }
         prevLoopEndTime = System.nanoTime();
         Matrix4f.mul(viewMatrix, projectionMatrix, prevVPMatrix);

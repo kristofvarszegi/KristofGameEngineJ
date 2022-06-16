@@ -3,10 +3,20 @@ package com.kristof.gameengine.util;
 import com.kristof.gameengine.rectangle.Rectangle;
 import com.kristof.gameengine.triangle.Triangle;
 
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.GL_FALSE;
+import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
+import static org.lwjgl.opengl.GL11.glGetError;
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.system.MemoryStack.stackPush;
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryStack;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
@@ -19,18 +29,13 @@ import java.util.Date;
 import java.util.List;
 import javax.imageio.ImageIO;
 
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_FALSE;
-import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
-import static org.lwjgl.opengl.GL11.glGetError;
-import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.system.MemoryStack.stackPush;
-
 public class Utils {
     public enum TOSTRING_CLASS_NAMES {
         VECTOR3FEXT, VECTOR3FEXT_ARRAY, FLOAT_ARRAY, INTEGER,
         SHORT, BYTE, TRIANGLE, RECTANGLE
     }
+
+    private static final Logger LOGGER = LogManager.getLogger(Utils.class);
 
     public static int loadShader(String filename, int type) {
         final StringBuilder shaderSourceStr = new StringBuilder();
@@ -43,9 +48,10 @@ public class Utils {
             }
             reader.close();
         } catch (IOException e) {
-            System.err.println("Could not read file.");
             e.printStackTrace();
-            System.exit(-1);
+            final String message = "Could not read file: " + filename;
+            LOGGER.error(message);
+            throw new RuntimeException(message);
         }
 
         shaderId = glCreateShader(type);
@@ -59,8 +65,9 @@ public class Utils {
             if (type == GL_FRAGMENT_SHADER) {
                 shaderTypeString = "fragment";
             }
-            System.err.println("Could not compile " + shaderTypeString + " shader " + filename);
-            System.exit(-1);
+            final String message = "Could not compile " + shaderTypeString + " shader " + filename;
+            LOGGER.error(message);
+            throw new RuntimeException(message);
         }
         exitOnGLError("Renderer.loadShader()");
         return shaderId;
@@ -69,8 +76,9 @@ public class Utils {
     public static void exitOnGLError(String errorMessage) {
         final int errorValue = glGetError();
         if (errorValue != GL_NO_ERROR) {
-            System.err.println("GL Error: " + errorMessage + "(" + errorValue + ")");
-            System.exit(-1);
+            final String message = "GL Error: " + errorMessage + "(" + errorValue + ")";
+            LOGGER.error(message);
+            throw new RuntimeException(message);
         }
     }
 

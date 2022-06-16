@@ -1,5 +1,4 @@
 
-* Logger
 * Unit tests
 * Pass eye pos to the fs, not the vs
 * Frustum angle to vary with speed
