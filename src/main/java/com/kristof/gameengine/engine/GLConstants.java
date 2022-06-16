@@ -1,6 +1,6 @@
 package com.kristof.gameengine.engine;
 
-public class EngineGLConstants {
+public class GLConstants {
     static final String M_MATRIX_LABEL = "u_MMatrix";
     static final String V_MATRIX_LABEL = "u_VMatrix";
     static final String P_MATRIX_LABEL = "u_PMatrix";

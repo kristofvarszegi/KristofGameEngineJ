@@ -8,8 +8,10 @@ import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 import static org.lwjgl.opengl.GL11.glGetError;
 import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 import static org.lwjgl.system.MemoryStack.stackPush;
 
+import de.matthiasmann.twl.utils.PNGDecoder;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL11;
@@ -71,6 +73,56 @@ public class Utils {
         }
         exitOnGLError("Renderer.loadShader()");
         return shaderId;
+    }
+
+    public static int loadPNGTexture(String filename, int textureUnit) {
+        final ByteBuffer buf;
+        final int imageWidth;
+        final int imageHeight;
+        try {
+            InputStream in = new FileInputStream(filename);
+            PNGDecoder decoder = new PNGDecoder(in);
+            imageWidth = decoder.getWidth();
+            imageHeight = decoder.getHeight();
+            buf = ByteBuffer.allocateDirect(4 * decoder.getWidth() * decoder.getHeight());
+            decoder.decode(buf, decoder.getWidth() * 4, PNGDecoder.Format.RGBA);
+            buf.flip();
+            in.close();
+
+            // Create a new texture object in memory and bind it
+            int texId = glGenTextures();
+            glActiveTexture(textureUnit);
+            glBindTexture(GL_TEXTURE_2D, texId);
+
+            // All RGB bytes are aligned to each other and each component is 1 byte
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+            // Upload the texture data and generate mip maps (for scaling)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0,
+                    GL_RGBA, GL_UNSIGNED_BYTE, buf);
+            glGenerateMipmap(GL_TEXTURE_2D);
+
+            // Setup the ST coordinate system
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+            // Setup what to do when the texture has to be scaled
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                    GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                    GL_LINEAR_MIPMAP_LINEAR);
+
+            // Unbind
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+            exitOnGLError("loadPNGTexture");
+
+            return texId;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to read " + filename + ": " + e.getMessage());
+        }
     }
 
     public static void exitOnGLError(String errorMessage) {

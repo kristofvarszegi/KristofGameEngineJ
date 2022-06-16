@@ -8,7 +8,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.List;
 import java.util.Vector;
 
-import static com.kristof.gameengine.engine.EngineMiscConstants.INFINITY;
+import static com.kristof.gameengine.engine.MiscConstants.INFINITY;
 import static com.kristof.gameengine.object3d.Object3d.GAP_SIZE;
 
 public class ShadowVolumeBO extends ByteObject3dBO {

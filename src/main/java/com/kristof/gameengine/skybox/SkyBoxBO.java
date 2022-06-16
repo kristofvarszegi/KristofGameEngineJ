@@ -6,9 +6,7 @@ import com.kristof.gameengine.object3d.ByteObject3dBO;
 
 import org.lwjgl.opengl.GL11;
 
-import java.util.List;
-
-import static com.kristof.gameengine.engine.EngineMiscConstants.INFINITY;
+import static com.kristof.gameengine.engine.MiscConstants.INFINITY;
 
 public class SkyBoxBO extends ByteObject3dBO {
     private static final float SIDE = 0.9f * INFINITY;

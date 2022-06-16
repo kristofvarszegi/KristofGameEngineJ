@@ -5,7 +5,7 @@ import org.ini4j.Ini;
 import java.io.File;
 import java.io.IOException;
 
-public class EngineConfig {
+public class Config {
     enum RENDER_MODE {TRADITIONAL, RAY_TRACING}
 
     private static final String RENDER_GROUP_LABEL = "render";
@@ -25,7 +25,21 @@ public class EngineConfig {
     final boolean isEyeIdleMovementEnabled;
     final boolean isGravityOn;
 
-    public EngineConfig(String iniFilePath) throws IOException {
+    private Config() {
+        isFullScreen = false;
+        renderMode = null;
+        fieldOfViewDeg = -1f;
+        isShadowsEnabled = false;
+        isShadowVolumesVisible = false;
+        isPostProcessingEnabled = false;
+
+        isAvatarPowerGravityPullEnabled = false;
+        isDragEnabled = false;
+        isEyeIdleMovementEnabled = false;
+        isGravityOn = false;
+    }
+
+    public Config(String iniFilePath) throws IOException {
         final Ini ini = new Ini(new File(iniFilePath));
         isFullScreen = ini.get(RENDER_GROUP_LABEL, "fullscreen", boolean.class);
         final String renderModeLabel = ini.get(RENDER_GROUP_LABEL, "mode", String.class);

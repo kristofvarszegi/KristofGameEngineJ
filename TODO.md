@@ -5,7 +5,7 @@
 * Fix cuboid shadow geometry
 * Fix child object position for render and shadows
 * Fix DoF buffers
-* Assets, scene info from file
+* Resources, scene info from file
 * Fix screenshot in fullscreen
 * Revive OBJ support
 * Fit avatar reset to speed-based pos updating

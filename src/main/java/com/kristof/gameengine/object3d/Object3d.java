@@ -12,7 +12,7 @@ import com.kristof.gameengine.shadow.ShadowVolumeBO;
 import java.util.List;
 import java.util.Vector;
 
-import static com.kristof.gameengine.engine.EngineMiscConstants.FORCED_FPS;
+import static com.kristof.gameengine.engine.MiscConstants.FORCED_FPS;
 import static com.kristof.gameengine.util.Utils.exitOnGLError;
 
 public abstract class Object3d {

@@ -16,7 +16,7 @@ import java.nio.FloatBuffer;
 import java.util.List;
 import java.util.Vector;
 
-import static com.kristof.gameengine.engine.EngineGLConstants.*;
+import static com.kristof.gameengine.engine.GLConstants.*;
 import static com.kristof.gameengine.util.Utils.exitOnGLError;
 
 public abstract class Object3dBO {

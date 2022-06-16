@@ -2,7 +2,7 @@ package com.kristof.gameengine.engine;
 
 import com.kristof.gameengine.util.Vector3fExt;
 
-public class EngineMiscConstants {
+public class MiscConstants {
     static final String WINDOW_TITLE = "Space Fly";
     static final float SCREEN_FILL_RATIO = 0.5f;
     public static final int FORCED_FPS = 60;
